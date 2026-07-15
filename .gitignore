@@ -26,3 +26,11 @@ website/public/Musim.dmg
 
 # Release artifacts are attached to GitHub Releases, not committed to Git.
 *.dmg
+
+# Windows (Tauri) app
+windows/node_modules/
+windows/dist/
+windows/src-tauri/target/
+windows/src-tauri/gen/schemas/
+windows/src-tauri/binaries/*.exe
+windows/icon-source.png
