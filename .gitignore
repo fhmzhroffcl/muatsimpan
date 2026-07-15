@@ -1,0 +1,28 @@
+# SwiftPM and macOS build output
+.build/
+build/
+DerivedData/
+*.xcuserstate
+.DS_Store
+
+# Third-party executables are fetched for local packaging/release work.
+Vendor/
+
+# Website dependencies and generated output
+website/node_modules/
+website/.next/
+website/.wrangler/
+website/dist/
+website/.vinext/
+website/public/Musim.dmg
+
+# Local reports, caches, and editor files
+*.log
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+
+# Release artifacts are attached to GitHub Releases, not committed to Git.
+*.dmg

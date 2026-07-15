@@ -1,0 +1,64 @@
+name: Build Windows exe
+
+on:
+  push:
+    branches: [main, master]
+    paths: ["windows/**", ".github/workflows/windows-build.yml"]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: windows/src-tauri
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: windows/pnpm-lock.yaml
+
+      - name: Install JS dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Fetch bundled binaries (yt-dlp, ffmpeg, ffprobe, deno)
+        shell: pwsh
+        run: ./scripts/fetch-binaries.ps1
+
+      - name: Generate app icons
+        shell: pwsh
+        run: |
+          Copy-Item "..\must simpan ico.png" "icon-source.png" -Force
+          pnpm tauri icon "icon-source.png"
+
+      - name: Build Tauri app
+        run: pnpm tauri build
+
+      - name: Upload portable exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: musim-portable-exe
+          path: windows/src-tauri/target/release/musim.exe
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: musim-setup
+          path: windows/src-tauri/target/release/bundle/nsis/*-setup.exe

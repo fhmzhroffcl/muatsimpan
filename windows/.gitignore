@@ -1,0 +1,8 @@
+node_modules
+dist
+src-tauri/target
+src-tauri/gen/schemas
+# Bundled binaries are fetched at build time, not committed.
+src-tauri/binaries/*.exe
+icon-source.png
+.DS_Store

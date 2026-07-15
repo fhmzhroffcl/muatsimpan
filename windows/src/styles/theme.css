@@ -1,0 +1,120 @@
+/* Design tokens — ported from Sources/Musim/Views/DesignSystem.swift.
+   Colors, radii and the Malaysian accent palette. Accent + appearance are
+   applied at runtime by setting data-accent / data-theme on <html>. */
+
+:root {
+  /* radii */
+  --r-lg: 16px;
+  --r-md: 12px;
+  --r-sm: 9px;
+
+  /* springs (approximated as CSS easing/durations) */
+  --ease-bouncy: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-snappy: 0.18s;
+  --dur-bouncy: 0.32s;
+  --dur-smooth: 0.42s;
+
+  /* default accent = "sunset" (overridden by [data-accent]) */
+  --accent: #f1592a;
+  --accent2: #e23a2e;
+  --accent-soft: rgba(241, 89, 42, 0.16);
+}
+
+/* Malaysian accent palette (id -> hex, hex2) */
+:root[data-accent="sunset"]    { --accent:#F1592A; --accent2:#E23A2E; --accent-soft:rgba(241,89,42,.16); }
+:root[data-accent="bungaraya"] { --accent:#E0243B; --accent2:#B01029; --accent-soft:rgba(224,36,59,.16); }
+:root[data-accent="songket"]   { --accent:#E0A126; --accent2:#D4841A; --accent-soft:rgba(224,161,38,.16); }
+:root[data-accent="tehtarik"]  { --accent:#C97B3C; --accent2:#A5602A; --accent-soft:rgba(201,123,60,.16); }
+:root[data-accent="rafflesia"] { --accent:#D84327; --accent2:#A83218; --accent-soft:rgba(216,67,39,.16); }
+:root[data-accent="pandan"]    { --accent:#4FA85A; --accent2:#3B8C46; --accent-soft:rgba(79,168,90,.16); }
+:root[data-accent="laut"]      { --accent:#2E9AA6; --accent2:#1F7C86; --accent-soft:rgba(46,154,166,.16); }
+
+/* Dark theme (default) — OLED-leaning, warm */
+:root, :root[data-theme="dark"] {
+  --bg: #0B0B0C;
+  --bg-elevated: #151518;
+  --surface: #1C1C20;
+  --surface-hover: #26262B;
+  --border: #2B2B31;
+  --border-strong: #3A3A42;
+  --text-primary: #F2F1EE;
+  --text-secondary: #9A9A95;
+  --glass: rgba(28, 28, 32, 0.55);
+  --shadow: rgba(0, 0, 0, 0.4);
+}
+
+/* Light theme — off-white */
+:root[data-theme="light"] {
+  --bg: #F6F5F2;
+  --bg-elevated: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-hover: #EEEDEA;
+  --border: #E4E3DF;
+  --border-strong: #D6D5D0;
+  --text-primary: #1A1A1A;
+  --text-secondary: #6B6B67;
+  --glass: rgba(255, 255, 255, 0.65);
+  --shadow: rgba(0, 0, 0, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: -apple-system, "Segoe UI", system-ui, Roboto, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+}
+
+a { color: var(--accent); }
+
+.accent-gradient {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+}
+
+.glass-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: 0 10px 24px var(--shadow);
+  backdrop-filter: blur(20px);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn-primary {
+  border: none;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  padding: 9px 16px;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  font-size: 13px;
+  transition: transform var(--dur-snappy), opacity var(--dur-snappy);
+}
+.btn-primary:active { transform: scale(0.98); opacity: 0.85; }
+
+.btn-glass {
+  color: var(--text-primary);
+  background: var(--glass);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: var(--r-sm);
+  font-weight: 500;
+  font-size: 13px;
+  transition: transform var(--dur-snappy), background var(--dur-snappy);
+}
+.btn-glass:hover { background: var(--surface-hover); }
+.btn-glass:active { transform: scale(0.98); }

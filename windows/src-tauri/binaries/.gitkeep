@@ -1,0 +1,2 @@
+# yt-dlp.exe, ffmpeg.exe, ffprobe.exe and deno.exe are downloaded here by
+# scripts/fetch-binaries.ps1 before the Tauri build bundles them as resources.
