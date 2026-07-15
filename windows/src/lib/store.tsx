@@ -20,6 +20,9 @@ interface AppCtx {
   t: (key: string) => string;
   greet: () => string;
   enqueue: (urls: string[], type?: MediaType) => Promise<void>;
+  activityOpen: boolean;
+  openActivity: () => void;
+  closeActivity: () => void;
 }
 
 const Ctx = createContext<AppCtx | null>(null);
@@ -28,6 +31,7 @@ export function AppProvider({ settings: initial, children }: { settings: AppSett
   const [settings, setSettings] = useState<AppSettings>(initial);
   const [downloads, setDownloads] = useState<DownloadItem[]>([]);
   const [engineReady, setEngineReady] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
   const persistTimer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -77,6 +81,9 @@ export function AppProvider({ settings: initial, children }: { settings: AppSett
     t: (key) => loc(key, settings.language),
     greet: () => greeting(settings.language, settings.userName),
     enqueue: (urls, type) => api.enqueueUrls(urls, type),
+    activityOpen,
+    openActivity: () => setActivityOpen(true),
+    closeActivity: () => setActivityOpen(false),
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
