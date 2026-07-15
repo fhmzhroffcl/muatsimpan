@@ -1,48 +1,115 @@
-# Musim (Muat + Simpan)
+<p align="center">
+  <img src="./must%20simpan%20ico.png" alt="Musim logo" width="150">
+</p>
 
-Musim turns the things you save into a media library you actually own. Paste a link to save video or audio from 1,000+ sites, then keep it organized with folders, a built-in player and video editor, sticky notes, and archive insights—all on your Mac, with no ads and no tracking.
+<h1 align="center">Musim <small>(Muat + Simpan)</small></h1>
 
-Musim is a private, local-first media archive for macOS. It is free, ad-free, offline-first, and built as a native Apple Silicon app.
+<p align="center">
+  A private, local-first media archive for macOS.<br>
+  Save what matters, organize it properly, and keep it on your own device.
+</p>
 
-## Features
+<p align="center">
+  <a href="https://github.com/fhmzhroffcl/muatsimpan/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/fhmzhroffcl/muatsimpan?style=for-the-badge&color=F1592A"></a>
+  <a href="https://github.com/fhmzhroffcl/muatsimpan/releases/latest"><img alt="Download DMG" src="https://img.shields.io/badge/Download-DMG-F1592A?style=for-the-badge&logo=apple&logoColor=white"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-26262B?style=for-the-badge"></a>
+</p>
 
-- **Save from 1,000+ sites** — paste one or many links; supported sources include YT, FB, TT, IG, X, SC, and many more.
-- **A real library, not a downloads folder** — folder canvas with drag and drop, a Photos-style timeline, rename-on-disk, and search across name, format, source, and channel.
-- **Built-in video player** — watch saved media without leaving Musim.
-- **Two-panel video editor** — trim, crop, aspect ratio, speed, resolution, and export through AVFoundation.
-- **Sticky notes and labels** on your media.
-- **Archive insights** — video/audio split, top sources, top formats, storage, and interactive charts.
-- **Smart organization** — auto-foldering by platform and creator, filename templates, subtitle/thumbnail/metadata embedding.
-- **Bilingual** — Bahasa Melayu and English.
-- **Fully local** — no ads, no tracking, and files saved to a folder you choose.
+<p align="center">
+  <strong>Free</strong> · <strong>Ad-free</strong> · <strong>No tracking</strong> · <strong>Apple Silicon native</strong> · <strong>Bahasa Melayu / English</strong>
+</p>
 
-## Build and run
+<p align="center">
+  <img src="./Musim%20Snapshots/09%20Library.png" alt="Musim personal media library" width="100%">
+</p>
 
-Requirements: macOS 14 or newer and an Apple Silicon Mac. Swift Command Line Tools are sufficient for the native build.
+## Your media, in a library you control
+
+**Musim (Muat + Simpan)** turns the things you save into a media library you actually own. Paste one or many links to save video or audio from 1,000+ supported sources, then organize everything with folders, a visual timeline, sticky notes, a built-in player, a two-panel editor, and archive insights—all locally on your Mac.
+
+The collection is the home screen. Adding new media is secondary. Your files live in a folder you choose, and Musim shows you exactly where they are.
+
+<p align="center">
+  <a href="https://github.com/fhmzhroffcl/muatsimpan/releases/latest"><strong>Download the latest Musim DMG →</strong></a>
+</p>
+
+## What Musim includes
+
+| Archive and organize | Play and edit |
+| --- | --- |
+| Save one or many links from 1,000+ supported sources | Watch video without leaving Musim |
+| Real folders with drag and drop and rename-on-disk | Two-panel editor with an always-visible timeline |
+| Photos-style library grouped by archive date | Trim, crop, reposition, change aspect ratio and speed |
+| Search by title, format, source, channel, and keyword | Choose output resolution and export locally |
+| Sticky notes, labels, filename templates, and auto-folders | Review active saves and history in the Activity panel |
+| Storage, format, source, and video/audio insights | Keep all processing local on your own device |
+
+## A guided tour
+
+The screenshots below show the current native macOS build. Click any image to view it at full size.
+
+<table>
+  <tr>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/01%20-%20Fetch.png"><img src="./Musim%20Snapshots/01%20-%20Fetch.png" alt="Add links to the Musim archive" width="100%"></a><br><strong>01 · Add to archive</strong><br><sub>Paste one or many links into a compact secondary save flow.</sub></td>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/02%20Archive.png"><img src="./Musim%20Snapshots/02%20Archive.png" alt="Review media before saving" width="100%"></a><br><strong>02 · Review media</strong><br><sub>Check titles, formats, quality, and size before saving.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/03%20Fetch%20All.png"><img src="./Musim%20Snapshots/03%20Fetch%20All.png" alt="Batch save media" width="100%"></a><br><strong>03 · Batch saving</strong><br><sub>Review multiple items and save the whole collection together.</sub></td>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/04%20Activity.png"><img src="./Musim%20Snapshots/04%20Activity.png" alt="Musim activity window" width="100%"></a><br><strong>04 · Live activity</strong><br><sub>Follow progress, speed, processing, and completed saves.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/05%20History.png"><img src="./Musim%20Snapshots/05%20History.png" alt="Musim save history" width="100%"></a><br><strong>05 · History</strong><br><sub>Open, retry, reveal, or remove previous activity records.</sub></td>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/06%20How-to.png"><img src="./Musim%20Snapshots/06%20How-to.png" alt="Musim interactive guide" width="100%"></a><br><strong>06 · Interactive Panduan</strong><br><sub>A scroll-led, 12-chapter walkthrough of the complete Musim flow.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/07%20Settings.png"><img src="./Musim%20Snapshots/07%20Settings.png" alt="Musim settings" width="100%"></a><br><strong>07 · Personal settings</strong><br><sub>Control language, appearance, folders, quality, naming, and metadata.</sub></td>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/08%20Folders.png"><img src="./Musim%20Snapshots/08%20Folders.png" alt="Musim folder canvas" width="100%"></a><br><strong>08 · Folder canvas</strong><br><sub>Arrange real folders visually and move media with drag and drop.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/09%20Library.png"><img src="./Musim%20Snapshots/09%20Library.png" alt="Musim media library" width="100%"></a><br><strong>09 · Your library</strong><br><sub>Browse cover art, archive dates, formats, source metadata, and storage.</sub></td>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/10%20Player.png"><img src="./Musim%20Snapshots/10%20Player.png" alt="Musim built-in video player" width="100%"></a><br><strong>10 · Built-in player</strong><br><sub>Watch saved video without opening QuickTime or leaving the app.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/11%20Editor.png"><img src="./Musim%20Snapshots/11%20Editor.png" alt="Musim two-panel video editor" width="100%"></a><br><strong>11 · Two-panel editor</strong><br><sub>Trim, crop, reposition, change speed and resolution, then export.</sub></td>
+    <td width="50%" valign="top"><a href="./Musim%20Snapshots/12%20About.png"><img src="./Musim%20Snapshots/12%20About.png" alt="Musim about and changelog" width="100%"></a><br><strong>12 · About and changelog</strong><br><sub>Read release history, privacy, terms, licenses, and credits in-app.</sub></td>
+  </tr>
+</table>
+
+## Privacy by design
+
+Musim saves files directly to your chosen folder. The current build has no advertising, analytics, telemetry, user accounts, or tracking. It is designed for media you own or are licensed and permitted to keep—your own uploads, public or Creative Commons material, and authorised backups.
+
+Read the [privacy policy](legal/PRIVACY.md) and [responsible-use terms](legal/TERMS.md).
+
+## Download
+
+The current release supports **Apple Silicon Macs running macOS 14 or newer**.
+
+1. Download `Musim.dmg` from [GitHub Releases](https://github.com/fhmzhroffcl/muatsimpan/releases/latest).
+2. Open the disk image and drag Musim into Applications.
+3. The current community build is ad-hoc signed and not notarized by Apple. If macOS blocks the first launch, review it under **System Settings → Privacy & Security** before allowing it.
+
+Release checksums are listed with each release.
+
+## Build from source
+
+You need macOS 14 or newer, an Apple Silicon Mac, and Swift Command Line Tools.
 
 ```zsh
 ./scripts/bundle.sh
 open build/Musim.app
 ```
 
-The packaging script expects the third-party executables in `Vendor/` for local builds. These binaries are intentionally excluded from Git. The app can fetch its media engine on first launch; FFmpeg is also used for media processing and editor export.
+The local packaging script expects third-party executables in `Vendor/`. Those binaries are intentionally excluded from Git. Build and release artifacts, including DMGs, are published separately through GitHub Releases.
 
-The current Apple Silicon DMG is published under the repository's [GitHub Releases](https://github.com/fhmzhroffcl/muatsimpan/releases).
+## Open source and credits
 
-## Source and licensing
+Musim's Swift source is available under the [MIT License](LICENSE).
 
-Musim's Swift source is released under the MIT License; see [LICENSE](LICENSE).
+Built on open source—yt-dlp, FFmpeg, and Deno. The media engine is inspired by [VidBee](https://github.com/nexmoe/VidBee), not a VidBee wrapper. Musim adapts part of its yt-dlp argument logic while rebuilding the application, library, player, editor, guide, and interface as a native product.
 
-The app uses FFmpeg, yt-dlp, Deno, and adapted yt-dlp argument logic inspired by [VidBee](https://github.com/nexmoe/VidBee). The download engine is inspired by VidBee, not a VidBee wrapper. Copyright and licenses for each project remain with their holders; see [legal/NOTICE.md](legal/NOTICE.md).
+Copyright and licenses for every upstream project remain with their holders. See [NOTICE.md](legal/NOTICE.md) for attribution, FFmpeg GPLv3 details, and the corresponding source-code offer.
 
-Musim shells out to FFmpeg as a separate process rather than linking it into the application. The FFmpeg binary distributed in a release remains covered by its own GPLv3 terms. See the notice for the exact build information and source-code offer.
-
-## Privacy and responsible use
-
-Musim is designed for media you own or are licensed and permitted to keep: your own uploads, public or Creative Commons material, and authorised backups. It saves files locally and does not add analytics or tracking. See [legal/PRIVACY.md](legal/PRIVACY.md) and [legal/TERMS.md](legal/TERMS.md).
-
-## Credits
-
-Built on open source — yt-dlp, FFmpeg, and Deno. The download engine is inspired by [VidBee](https://github.com/nexmoe/VidBee). Copyright and licenses for each project remain with their holders (see the in-app **Licenses** tab / [legal/NOTICE.md](legal/NOTICE.md)).
-
-Musim is a WartaAI project by Fahim Zahar.
+<p align="center">
+  Made in Malaysia by <strong>Fahim Zahar</strong> · A WartaAI project
+</p>
