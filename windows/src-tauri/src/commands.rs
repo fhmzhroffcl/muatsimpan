@@ -44,6 +44,24 @@ pub async fn install_engine(app: AppHandle) -> Result<(), String> {
     engine.install_ytdlp().await
 }
 
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EngineStatus {
+    pub ytdlp: Option<String>,
+    pub ffmpeg: bool,
+    pub ffprobe: bool,
+}
+
+#[tauri::command]
+pub fn engine_status(state: State<AppState>) -> EngineStatus {
+    let e = &state.engine;
+    EngineStatus {
+        ytdlp: e.binary_path(),
+        ffmpeg: e.ffmpeg_path().is_some(),
+        ffprobe: e.ffprobe_path().is_some(),
+    }
+}
+
 #[tauri::command]
 pub async fn probe_media(app: AppHandle, url: String) -> Result<MediaProbe, String> {
     let (engine, settings) = {

@@ -6,6 +6,8 @@ import logoUrl from "../assets/logo.png";
 import { Icon } from "./Icon";
 import { patternDataUri, type PatternStyle } from "../lib/theme";
 
+export { Icon } from "./Icon";
+
 export function Logo({ size = 40 }: { size?: number }) {
   return (
     <div

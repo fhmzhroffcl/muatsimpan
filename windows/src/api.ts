@@ -173,6 +173,7 @@ export const api = {
 
   // engine
   engineReady: () => invoke<boolean>("engine_ready"),
+  engineStatus: () => invoke<{ ytdlp: string | null; ffmpeg: boolean; ffprobe: boolean }>("engine_status"),
   installEngine: () => invoke<void>("install_engine"),
   probeMedia: (url: string) => invoke<MediaProbe>("probe_media", { url }),
   listExtractors: () => invoke<string[]>("list_extractors"),

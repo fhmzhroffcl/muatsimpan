@@ -67,6 +67,7 @@ pub fn run() {
             commands::default_browser,
             commands::browsers,
             commands::engine_ready,
+            commands::engine_status,
             commands::install_engine,
             commands::probe_media,
             commands::list_extractors,
