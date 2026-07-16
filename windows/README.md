@@ -12,6 +12,22 @@ Two artifacts come out of a build:
 - `src-tauri/target/release/musim.exe` — the portable executable.
 - `src-tauri/target/release/bundle/nsis/Musim_1.0.0_x64-setup.exe` — the installer.
 
+## Download the Windows build
+
+The first unsigned Windows build is available from the
+[Musim for Windows v1.0.0 release](https://github.com/fhmzhroffcl/muatsimpan/releases/tag/windows-v1.0.0):
+
+- [Portable `musim.exe`](https://github.com/fhmzhroffcl/muatsimpan/releases/download/windows-v1.0.0/musim.exe)
+- [Windows setup installer](https://github.com/fhmzhroffcl/muatsimpan/releases/download/windows-v1.0.0/Musim_1.0.0_x64-setup.exe)
+
+This community build is not code-signed, so Windows SmartScreen may ask for
+confirmation before the first launch.
+
+| File | SHA-256 |
+| --- | --- |
+| `musim.exe` | `55b4c810fa2736e9b4034f46a0872c1999cb2a4c900170e32a21a78fed165c84` |
+| `Musim_1.0.0_x64-setup.exe` | `f53c48617c70fc128f5f7f20ed320fe010d5fae7ca6fc7b735ec554782b35366` |
+
 ## Building the exe
 
 You need **Windows** to produce a Windows binary (Tauri links against WebView2 and
