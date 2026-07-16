@@ -1,6 +1,7 @@
 // Shared building blocks: logo, glass card, buttons, modal, chips, spinner,
 // and the subtle Malaysian pattern overlay.
 
+import * as React from "react";
 import { type CSSProperties, type ReactNode, useEffect } from "react";
 import logoUrl from "../assets/logo.png";
 import { Icon } from "./Icon";

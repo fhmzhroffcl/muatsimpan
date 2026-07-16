@@ -1,5 +1,6 @@
 // Minimal stroke icon set (Lucide-style, 24x24) covering the glyphs the UI uses.
 // Replaces SF Symbols from the macOS build.
+import * as React from "react";
 
 const P: Record<string, string> = {
   archive: "M3 8h18M3 8l1 12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2l1-12M3 8l1.5-4h15L21 8M10 12h4",

@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useState, type ReactNode } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { api, type QualityPreset } from "../api";

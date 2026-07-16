@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useRef, useState } from "react";
 import { api, fileSrc, type LibraryEntry } from "../api";
 import { useApp } from "../lib/store";
