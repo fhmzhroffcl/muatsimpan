@@ -27,15 +27,15 @@ manually from the Actions tab (**Run workflow** → `workflow_dispatch`).
 
 ### 2. On a Windows machine
 
-Install [Rust](https://rustup.rs), Node 20+, and pnpm (`npm i -g pnpm`), then:
+Install [Rust](https://rustup.rs) and Node 20+, then:
 
 ```powershell
 cd windows
 ./scripts/build.ps1
 ```
 
-The script downloads the bundled binaries, generates icons from the shared logo,
-and runs `pnpm tauri build`.
+The script downloads the bundled binaries and runs `npm run tauri build`. Icons
+are committed under `src-tauri/icons`, so no generation step is needed.
 
 ## Architecture
 

@@ -64,10 +64,13 @@ pub fn engine_status(state: State<AppState>) -> EngineStatus {
 
 #[tauri::command]
 pub async fn probe_media(app: AppHandle, url: String) -> Result<MediaProbe, String> {
-    let (engine, settings) = {
+    let engine;
+    let settings;
+    {
         let state = app.state::<AppState>();
-        (state.engine.clone(), state.settings.lock().unwrap().clone())
-    };
+        engine = state.engine.clone();
+        settings = state.settings.lock().unwrap().clone();
+    }
     ytdlp::probe(&url, &settings, &engine).await
 }
 
