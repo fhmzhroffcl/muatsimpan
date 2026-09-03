@@ -24,6 +24,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             // %APPDATA%\Musim — writable support dir (history, notes, reports).
             let support_dir = dirs::data_dir()
@@ -51,6 +53,15 @@ pub fn run() {
 
             let downloads = Arc::new(DownloadManager::new(support_dir.clone()));
             let library = Arc::new(LibraryStore::new(support_dir.clone()));
+
+            // Keep the yt-dlp engine fresh in the background so it never goes
+            // stale (a stale build starts returning HTTP 403 on video streams).
+            {
+                let engine = engine.clone();
+                tauri::async_runtime::spawn(async move {
+                    engine.update_ytdlp_if_needed(false).await;
+                });
+            }
 
             app.manage(AppState {
                 settings: Mutex::new(settings),

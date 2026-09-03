@@ -1,0 +1,162 @@
+name: Release (macOS + Windows)
+
+# Push a semver tag (e.g. v2.1.0) to repackage BOTH apps, sign them, generate the
+# auto-update manifests (appcast.xml for macOS Sparkle, latest.json for the
+# Windows Tauri updater), and publish one GitHub Release with every asset.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to (re)build and release, e.g. v2.1.0"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  # Strip the leading "v" from the tag → semver used for both apps.
+  REPO: fhmzhroffcl/muatsimpan
+
+jobs:
+  macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: v
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch bundled binaries (yt-dlp, ffmpeg, ffprobe, deno)
+        run: ./scripts/fetch-binaries.sh
+
+      - name: Build + bundle Musim.app / Musim.dmg
+        env:
+          MUSIM_VERSION: ${{ steps.v.outputs.version }}
+          MUSIM_BUILD: ${{ github.run_number }}
+        run: ./scripts/bundle.sh
+
+      - name: Sign DMG for Sparkle
+        id: sign
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          printf '%s' "$SPARKLE_PRIVATE_KEY" > sparkle_key.pem
+          SIG=$(./.build/artifacts/sparkle/Sparkle/bin/sign_update --ed-key-file sparkle_key.pem build/Musim.dmg)
+          rm -f sparkle_key.pem
+          echo "enclosure=$SIG" >> "$GITHUB_OUTPUT"
+
+      - name: Generate appcast.xml
+        run: |
+          TAG="${{ steps.v.outputs.tag }}"
+          VER="${{ steps.v.outputs.version }}"
+          cat > build/appcast.xml <<XML
+          <?xml version="1.0" encoding="utf-8"?>
+          <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+            <channel>
+              <title>Musim</title>
+              <item>
+                <title>Musim ${VER}</title>
+                <pubDate>$(date -u +"%a, %d %b %Y %H:%M:%S +0000")</pubDate>
+                <sparkle:version>${{ github.run_number }}</sparkle:version>
+                <sparkle:shortVersionString>${VER}</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+                <enclosure url="https://github.com/${REPO}/releases/download/${TAG}/Musim.dmg" ${{ steps.sign.outputs.enclosure }} type="application/octet-stream"/>
+              </item>
+            </channel>
+          </rss>
+          XML
+          cat build/appcast.xml
+
+      - name: Publish macOS assets to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.v.outputs.tag }}
+          name: Musim ${{ steps.v.outputs.version }}
+          files: |
+            build/Musim.dmg
+            build/appcast.xml
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: v
+        shell: bash
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: windows/src-tauri
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: windows/package-lock.json
+
+      - name: Set app version in tauri.conf.json
+        shell: pwsh
+        run: |
+          $p = "src-tauri/tauri.conf.json"
+          (Get-Content $p -Raw) -replace '"version":\s*"[^"]*"', ('"version": "' + "${{ steps.v.outputs.version }}" + '"') | Set-Content $p
+          Get-Content $p | Select-String '"version"'
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Fetch bundled binaries (yt-dlp, ffmpeg, ffprobe, deno)
+        shell: pwsh
+        run: ./scripts/fetch-binaries.ps1
+
+      - name: Build Tauri app (signed updater artifacts)
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npm run tauri build
+
+      - name: Stage assets + generate latest.json
+        id: stage
+        shell: pwsh
+        run: |
+          $ver = "${{ steps.v.outputs.version }}"
+          $tag = "${{ steps.v.outputs.tag }}"
+          $nsis = "src-tauri/target/release/bundle/nsis"
+          $setup = Get-ChildItem "$nsis" -Filter "*-setup.exe" | Select-Object -First 1
+          $sigFile = Get-ChildItem "$nsis" -Filter "*-setup.exe.sig" | Select-Object -First 1
+          $sig = Get-Content $sigFile.FullName -Raw
+          New-Item -ItemType Directory -Force -Path dist-release | Out-Null
+          Copy-Item $setup.FullName "dist-release/$($setup.Name)"
+          Copy-Item "src-tauri/target/release/musim.exe" "dist-release/musim.exe"
+          $url = "https://github.com/${{ env.REPO }}/releases/download/$tag/$($setup.Name)"
+          $latest = @{
+            version   = $ver
+            notes     = "Musim $ver"
+            pub_date  = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+            platforms = @{ "windows-x86_64" = @{ signature = $sig.Trim(); url = $url } }
+          } | ConvertTo-Json -Depth 8
+          Set-Content -Path "dist-release/latest.json" -Value $latest
+          Get-Content "dist-release/latest.json"
+
+      - name: Publish Windows assets to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.v.outputs.tag }}
+          name: Musim ${{ steps.v.outputs.version }}
+          files: |
+            windows/dist-release/*-setup.exe
+            windows/dist-release/musim.exe
+            windows/dist-release/latest.json

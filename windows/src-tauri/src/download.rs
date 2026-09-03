@@ -18,6 +18,8 @@ use tokio_util::sync::CancellationToken;
 pub struct DownloadManager {
     items: Mutex<Vec<DownloadItem>>,
     cancels: Mutex<HashMap<String, CancellationToken>>,
+    /// Items already retried once after an automatic engine refresh — stops loops.
+    auto_healed: Mutex<std::collections::HashSet<String>>,
     history_path: PathBuf,
     support_dir: PathBuf,
 }
@@ -38,6 +40,7 @@ impl DownloadManager {
         DownloadManager {
             items: Mutex::new(items),
             cancels: Mutex::new(HashMap::new()),
+            auto_healed: Mutex::new(std::collections::HashSet::new()),
             history_path,
             support_dir,
         }
@@ -126,6 +129,7 @@ impl DownloadManager {
     }
 
     pub fn retry(&self, app: &AppHandle, id: &str) {
+        self.auto_healed.lock().unwrap().remove(id);
         self.update(id, |i| {
             i.status = DownloadStatus::Pending;
             i.progress = Default::default();
@@ -443,6 +447,41 @@ fn finish(
             notify(app, title, &item.title);
         }
     } else {
+        // A stale download engine returns HTTP 403 / "format not available" once
+        // a site rotates its streaming. Refresh yt-dlp and retry once before
+        // surfacing the failure.
+        let log_lower = item.log.to_lowercase();
+        let looks_stale = log_lower.contains("http error 403")
+            || log_lower.contains("forbidden")
+            || log_lower.contains("unable to download video data")
+            || log_lower.contains("nsig extraction failed")
+            || log_lower.contains("sign in to confirm")
+            || log_lower.contains("failed to extract any player response")
+            || log_lower.contains("requested format is not available");
+        let already = dl.auto_healed.lock().unwrap().contains(id);
+        if looks_stale && !already {
+            dl.auto_healed.lock().unwrap().insert(id.to_string());
+            let malay = matches!(settings.language, crate::settings::AppLanguage::Malay);
+            dl.update(id, |i| {
+                i.status = DownloadStatus::Pending;
+                i.error_message = None;
+                i.progress = Default::default();
+                i.log.push_str(if malay {
+                    "\n[Musim] Mengemas kini enjin yt-dlp, mencuba semula…\n"
+                } else {
+                    "\n[Musim] Updating yt-dlp engine, retrying…\n"
+                });
+            });
+            let engine = app.state::<AppState>().engine.clone();
+            let app2 = app.clone();
+            tauri::async_runtime::spawn(async move {
+                engine.refresh_ytdlp().await;
+                let dl = app2.state::<AppState>().downloads.clone();
+                dl.emit(&app2);
+                dl.pump(&app2);
+            });
+            return;
+        }
         dl.update(id, |i| {
             i.status = DownloadStatus::Error;
             let tail: String = i.log.chars().rev().take(400).collect::<String>().chars().rev().collect();

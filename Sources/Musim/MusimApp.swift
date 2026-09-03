@@ -6,6 +6,7 @@ struct MusimApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var settings = AppSettings.shared
     @StateObject private var ytdlp = YtDlpManager.shared
+    @StateObject private var updater = UpdaterController.shared
     @State private var showSplash = true
 
     var body: some Scene {
@@ -32,6 +33,14 @@ struct MusimApp: App {
             }
         }
         .windowStyle(.hiddenTitleBar)
+        .commands {
+            CommandGroup(after: .appInfo) {
+                Button(settings.language == .malay ? "Semak Kemas Kini…" : "Check for Updates…") {
+                    updater.checkForUpdates()
+                }
+                .disabled(!updater.canCheckForUpdates)
+            }
+        }
     }
 }
 

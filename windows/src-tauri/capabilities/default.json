@@ -11,6 +11,8 @@
     "core:window:allow-close",
     "opener:default",
     "dialog:default",
-    "notification:default"
+    "notification:default",
+    "updater:default",
+    "process:default"
   ]
 }

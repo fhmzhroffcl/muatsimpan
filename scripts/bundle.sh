@@ -10,6 +10,12 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp .build/release/Musim "$APP/Contents/MacOS/Musim"
 
+# Sparkle auto-update framework — embed it and add the loader rpath so the app
+# can check the appcast and self-install signed DMG updates.
+mkdir -p "$APP/Contents/Frameworks"
+cp -R .build/release/Sparkle.framework "$APP/Contents/Frameworks/"
+install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP/Contents/MacOS/Musim" 2>/dev/null || true
+
 # built-in download engine (yt-dlp + ffmpeg + ffprobe + Deno JS runtime)
 cp Vendor/yt-dlp Vendor/ffmpeg Vendor/ffprobe Vendor/deno "$APP/Contents/Resources/"
 xattr -cr "$APP/Contents/Resources/yt-dlp" "$APP/Contents/Resources/ffmpeg" \
@@ -78,7 +84,9 @@ else
   echo "⚠️  No icon source PNG found — skipping app icon."
 fi
 
-cat > "$APP/Contents/Info.plist" <<'EOF'
+# Version/build can be injected by CI (MUSIM_VERSION=tag, MUSIM_BUILD=run number);
+# defaults keep local sideload builds working.
+cat > "$APP/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -88,13 +96,17 @@ cat > "$APP/Contents/Info.plist" <<'EOF'
     <key>CFBundleName</key><string>Musim</string>
     <key>CFBundleDisplayName</key><string>Musim</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>2.0</string>
-    <key>CFBundleVersion</key><string>2</string>
+    <key>CFBundleShortVersionString</key><string>${MUSIM_VERSION:-2.0}</string>
+    <key>CFBundleVersion</key><string>${MUSIM_BUILD:-2}</string>
     <key>CFBundleIconFile</key><string>icon</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
     <key>NSHighResolutionCapable</key><true/>
     <key>NSHumanReadableCopyright</key><string>Musim — Muat + Simpan</string>
+    <key>SUFeedURL</key><string>https://github.com/fhmzhroffcl/muatsimpan/releases/latest/download/appcast.xml</string>
+    <key>SUPublicEDKey</key><string>9pupl3DNRVjPivaXZBoY0Bz66w1JLou8blKJEXwNDrs=</string>
+    <key>SUEnableAutomaticChecks</key><true/>
+    <key>SUScheduledCheckInterval</key><integer>86400</integer>
 </dict>
 </plist>
 EOF
