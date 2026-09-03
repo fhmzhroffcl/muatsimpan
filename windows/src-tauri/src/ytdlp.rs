@@ -150,7 +150,9 @@ async fn latest_tag() -> Option<String> {
     if !resp.status().is_success() {
         return None;
     }
-    let json: serde_json::Value = resp.json().await.ok()?;
+    // Parse via serde_json (reqwest's `json` feature is not enabled in this build).
+    let text = resp.text().await.ok()?;
+    let json: serde_json::Value = serde_json::from_str(&text).ok()?;
     json.get("tag_name")?.as_str().map(String::from)
 }
 
