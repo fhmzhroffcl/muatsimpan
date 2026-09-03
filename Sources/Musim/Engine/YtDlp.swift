@@ -1,7 +1,11 @@
 import Foundation
 
-/// Manages the yt-dlp (and ffmpeg) binaries: locates an existing install or
-/// downloads the official macOS build into Application Support on first run.
+/// Manages the yt-dlp (and ffmpeg) binaries. yt-dlp ships inside the app bundle
+/// so downloads work offline on first launch, but a self-updating copy is kept
+/// in Application Support and always takes priority — the bundled binary goes
+/// stale as sites rotate their streaming (a two-month-old build starts hitting
+/// HTTP 403 on video streams), so Musim quietly pulls the latest release in the
+/// background and self-heals a failed download by refreshing on the spot.
 final class YtDlpManager: ObservableObject {
     static let shared = YtDlpManager()
 
@@ -9,6 +13,8 @@ final class YtDlpManager: ObservableObject {
     @Published var isInstalling = false
     @Published var installProgress: Double = 0
     @Published var installError: String?
+    @Published var isUpdatingEngine = false
+    @Published var engineVersion: String?
 
     let supportDir: URL = {
         let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -17,13 +23,20 @@ final class YtDlpManager: ObservableObject {
         return url
     }()
 
-    /// Binaries ship inside the app bundle; Application Support and Homebrew
-    /// installs act as fallbacks/overrides for updates.
+    /// yt-dlp release feed. The macOS build is a single self-contained binary.
+    private let latestAPI = URL(string: "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")!
+    private let macBinaryURL = URL(string: "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos")!
+    private let lastCheckKey = "musim.ytdlp.lastUpdateCheck"
+
+    /// The writable, auto-updated copy that overrides the bundled one.
+    private var managedBinary: URL { supportDir.appendingPathComponent("yt-dlp") }
+
+    /// The auto-updated copy wins; the bundled binary is the offline fallback,
+    /// then any Homebrew/system install.
     var binaryPath: String? {
-        var candidates: [String] = []
+        var candidates: [String] = [managedBinary.path]
         if let res = Bundle.main.resourcePath { candidates.append(res + "/yt-dlp") }
         candidates += [
-            supportDir.appendingPathComponent("yt-dlp").path,
             "/opt/homebrew/bin/yt-dlp",
             "/usr/local/bin/yt-dlp",
         ]
@@ -59,37 +72,112 @@ final class YtDlpManager: ObservableObject {
     func checkOrInstall() {
         if binaryPath != nil {
             isReady = true
-            return
+        } else {
+            Task { await install() }
         }
-        Task { await install() }
+        updateEngineIfNeeded()
     }
 
-    @MainActor
-    private func setProgress(_ p: Double) { installProgress = p }
-
+    /// First-run fallback when no binary is present anywhere.
     func install() async {
         await MainActor.run { isInstalling = true; installError = nil }
-        do {
-            let url = URL(string: "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos")!
-            let dest = supportDir.appendingPathComponent("yt-dlp")
-            let (tmp, response) = try await URLSession.shared.download(from: url)
-            guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-                throw NSError(domain: "Musim", code: 1, userInfo: [NSLocalizedDescriptionKey: "Simpanan alat media gagal (ralat HTTP)"])
+        let ok = await downloadManagedBinary()
+        await MainActor.run {
+            isInstalling = false
+            if ok {
+                isReady = true
+                installProgress = 1
+            } else {
+                installError = AppSettings.shared.language == .malay
+                    ? "Simpanan alat media gagal (ralat HTTP)"
+                    : "Engine download failed (HTTP error)"
             }
+        }
+    }
+
+    // MARK: - Engine auto-update
+
+    /// Background check (throttled to once per day): if yt-dlp's "latest" release
+    /// tag has moved past the binary in use, quietly download the new one into
+    /// Application Support so `binaryPath` picks it up. Any failure is silent and
+    /// leaves the current binary in place.
+    func updateEngineIfNeeded(force: Bool = false) {
+        Task.detached(priority: .background) { [weak self] in
+            guard let self else { return }
+            let defaults = UserDefaults.standard
+            if !force,
+               let last = defaults.object(forKey: self.lastCheckKey) as? Date,
+               Date().timeIntervalSince(last) < 86_400 { return }
+            guard let latest = await self.latestTag() else { return }
+            defaults.set(Date(), forKey: self.lastCheckKey)
+            let current = self.currentVersion()
+            await MainActor.run { self.engineVersion = current }
+            // Already on the latest tag — nothing to do (bundled or managed).
+            if current == latest { return }
+            _ = await self.downloadManagedBinary()
+        }
+    }
+
+    /// Force an immediate refresh — used to self-heal a download that failed on a
+    /// stale engine. Returns true when a fresh binary was installed.
+    @discardableResult
+    func refreshEngineNow() async -> Bool {
+        await downloadManagedBinary()
+    }
+
+    /// The latest yt-dlp release tag (e.g. "2026.08.19"), or nil on any error.
+    private func latestTag() async -> String? {
+        var req = URLRequest(url: latestAPI)
+        req.setValue("Musim", forHTTPHeaderField: "User-Agent")
+        req.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+        guard let (data, resp) = try? await URLSession.shared.data(for: req),
+              (resp as? HTTPURLResponse)?.statusCode == 200,
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let tag = json["tag_name"] as? String else { return nil }
+        return tag
+    }
+
+    /// `yt-dlp --version` of whichever binary `binaryPath` currently resolves.
+    private func currentVersion() -> String? {
+        guard let bin = binaryPath else { return nil }
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: bin)
+        p.arguments = ["--version"]
+        let pipe = Pipe()
+        p.standardOutput = pipe
+        p.standardError = Pipe()
+        do { try p.run() } catch { return nil }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Download the latest macOS yt-dlp into Application Support and make it
+    /// runnable. Serialized by `isUpdatingEngine` so overlapping triggers coalesce.
+    @discardableResult
+    private func downloadManagedBinary() async -> Bool {
+        if await MainActor.run(body: { self.isUpdatingEngine }) { return false }
+        await MainActor.run { self.isUpdatingEngine = true }
+        defer { Task { @MainActor in self.isUpdatingEngine = false } }
+        do {
+            let (tmp, response) = try await URLSession.shared.download(from: macBinaryURL)
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { return false }
+            let dest = managedBinary
             try? FileManager.default.removeItem(at: dest)
             try FileManager.default.moveItem(at: tmp, to: dest)
             try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: dest.path)
-            // clear quarantine so it runs
-            let p = Process()
-            p.executableURL = URL(fileURLWithPath: "/usr/bin/xattr")
-            p.arguments = ["-d", "com.apple.quarantine", dest.path]
-            try? p.run(); p.waitUntilExit()
-            await MainActor.run { isReady = true; isInstalling = false; installProgress = 1 }
-        } catch {
+            // clear quarantine so it runs without a Gatekeeper prompt
+            let x = Process()
+            x.executableURL = URL(fileURLWithPath: "/usr/bin/xattr")
+            x.arguments = ["-d", "com.apple.quarantine", dest.path]
+            try? x.run(); x.waitUntilExit()
             await MainActor.run {
-                installError = error.localizedDescription
-                isInstalling = false
+                self.isReady = true
+                self.engineVersion = self.currentVersion()
             }
+            return true
+        } catch {
+            return false
         }
     }
 }

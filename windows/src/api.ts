@@ -4,6 +4,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import { check } from "@tauri-apps/plugin-updater";
+import { relaunch } from "@tauri-apps/plugin-process";
+import { ask } from "@tauri-apps/plugin-dialog";
 
 // ---- Model types (camelCase, matching serde on the Rust side) ----
 
@@ -227,4 +230,27 @@ export function onLibraryShouldRefresh(cb: () => void): Promise<UnlistenFn> {
 // Convert a real filesystem path into an asset: URL playable in <img>/<video>.
 export function fileSrc(path: string): string {
   return convertFileSrc(path);
+}
+
+// ---- App auto-update (Tauri updater) ----
+
+/// Check GitHub Releases for a newer signed build. If one exists, ask the user,
+/// then download, install, and relaunch. Silent on any error (offline, or no
+/// release published yet).
+export async function checkForAppUpdate(malay: boolean): Promise<void> {
+  try {
+    const update = await check();
+    if (!update?.available) return;
+    const proceed = await ask(
+      malay
+        ? `Versi baharu Musim (${update.version}) tersedia. Kemas kini sekarang?`
+        : `A new version of Musim (${update.version}) is available. Update now?`,
+      { title: malay ? "Kemas Kini Musim" : "Update Musim", kind: "info" },
+    );
+    if (!proceed) return;
+    await update.downloadAndInstall();
+    await relaunch();
+  } catch {
+    // no endpoint yet / offline — ignore
+  }
 }

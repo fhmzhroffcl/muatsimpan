@@ -10,6 +10,8 @@ final class DownloadManager: ObservableObject {
 
     @Published var items: [DownloadItem] = []
     private var processes: [String: Process] = [:]
+    /// Items already retried once after an automatic engine refresh — stops loops.
+    private var autoHealed: Set<String> = []
     private let settings = AppSettings.shared
     private let historyURL: URL
 
@@ -64,6 +66,7 @@ final class DownloadManager: ObservableObject {
     }
 
     func retry(_ id: String) {
+        autoHealed.remove(id)
         update(id) {
             $0.status = .pending
             $0.progress = DownloadProgressInfo()
@@ -235,6 +238,33 @@ final class DownloadManager: ObservableObject {
                        body: item.title)
             }
         } else {
+            // A stale download engine returns HTTP 403 / "format not available"
+            // once a site rotates its streaming. Refresh yt-dlp and retry once
+            // before surfacing the failure to the user.
+            let logLower = item.log.lowercased()
+            let looksStale = logLower.contains("http error 403")
+                || logLower.contains("forbidden")
+                || logLower.contains("unable to download video data")
+                || logLower.contains("nsig extraction failed")
+                || logLower.contains("sign in to confirm")
+                || logLower.contains("failed to extract any player response")
+                || logLower.contains("requested format is not available")
+            if looksStale && !autoHealed.contains(id) {
+                autoHealed.insert(id)
+                update(id) {
+                    $0.status = .pending
+                    $0.errorMessage = nil
+                    $0.progress = DownloadProgressInfo()
+                    $0.log += settings.language == .malay
+                        ? "\n[Musim] Mengemas kini enjin yt-dlp, mencuba semula…\n"
+                        : "\n[Musim] Updating yt-dlp engine, retrying…\n"
+                }
+                Task { [weak self] in
+                    await YtDlpManager.shared.refreshEngineNow()
+                    await MainActor.run { self?.pump() }
+                }
+                return
+            }
             update(id) {
                 $0.status = .error
                 $0.errorMessage = String($0.log.suffix(400))

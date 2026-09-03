@@ -34,6 +34,7 @@
   "bundle": {
     "active": true,
     "targets": ["nsis"],
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -45,6 +46,14 @@
       "nsis": {
         "installMode": "currentUser"
       }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDg5N0JCREREMENEOTdBMEYKUldRUGV0a00zYjE3aWZoc1pMbDEzUHB6eDdrQzZ0V1FjV1kwSW9oUlVrZ3d6dmtBOGVuWllOUHYK",
+      "endpoints": [
+        "https://github.com/fhmzhroffcl/muatsimpan/releases/latest/download/latest.json"
+      ]
     }
   }
 }

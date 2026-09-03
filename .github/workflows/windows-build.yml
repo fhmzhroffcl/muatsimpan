@@ -37,8 +37,9 @@ jobs:
         shell: pwsh
         run: ./scripts/fetch-binaries.ps1
 
-      - name: Build Tauri app
-        run: npm run tauri build
+      - name: Build Tauri app (test build — no updater signing)
+        shell: bash
+        run: npm run tauri build -- --config '{"bundle":{"createUpdaterArtifacts":false}}'
 
       - name: Upload portable exe
         uses: actions/upload-artifact@v4

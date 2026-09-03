@@ -19,9 +19,11 @@ pub struct Engine {
 
 impl Engine {
     fn resolve(&self, name: &str) -> Option<String> {
+        // The auto-updated copy in the support dir wins; the binary bundled in
+        // the installer is the offline fallback.
         let candidates = [
-            self.binaries_dir.join(name),
             self.support_dir.join(name),
+            self.binaries_dir.join(name),
         ];
         candidates
             .into_iter()
@@ -63,10 +65,58 @@ impl Engine {
 
     /// Fallback install — download the official yt-dlp.exe into the support dir.
     pub async fn install_ytdlp(&self) -> Result<(), String> {
+        self.download_latest_ytdlp().await
+    }
+
+    // MARK: - Engine auto-update
+
+    /// Refresh yt-dlp.exe when the latest release tag has moved past the binary
+    /// in use. Throttled to once per day via a marker file. Silent on any
+    /// failure — the current binary stays in place. yt-dlp goes stale as sites
+    /// rotate their streaming (a stale build starts returning HTTP 403 on video
+    /// streams), so Musim keeps it fresh in the background.
+    pub async fn update_ytdlp_if_needed(&self, force: bool) {
+        let marker = self.support_dir.join(".ytdlp_check");
+        if !force {
+            if let Ok(age) = std::fs::metadata(&marker)
+                .and_then(|m| m.modified())
+                .and_then(|t| t.elapsed().map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e)))
+            {
+                if age.as_secs() < 86_400 {
+                    return;
+                }
+            }
+        }
+        let Some(latest) = latest_tag().await else { return };
+        std::fs::create_dir_all(&self.support_dir).ok();
+        std::fs::write(&marker, latest.as_bytes()).ok();
+        if self.current_version().await.as_deref() == Some(latest.as_str()) {
+            return;
+        }
+        let _ = self.download_latest_ytdlp().await;
+    }
+
+    /// Force an immediate refresh — used to self-heal a failed download.
+    pub async fn refresh_ytdlp(&self) -> bool {
+        self.download_latest_ytdlp().await.is_ok()
+    }
+
+    /// `yt-dlp --version` of whichever binary `binary_path` currently resolves.
+    async fn current_version(&self) -> Option<String> {
+        let bin = self.binary_path()?;
+        let out = command(&bin).args(["--version"]).output().await.ok()?;
+        let v = String::from_utf8_lossy(&out.stdout).trim().to_string();
+        (!v.is_empty()).then_some(v)
+    }
+
+    /// Download the latest yt-dlp.exe into the support dir (atomic replace).
+    async fn download_latest_ytdlp(&self) -> Result<(), String> {
         let url = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
         let dest = self.support_dir.join("yt-dlp.exe");
         std::fs::create_dir_all(&self.support_dir).map_err(|e| e.to_string())?;
-        let bytes = reqwest::get(url)
+        let bytes = http_client()
+            .get(url)
+            .send()
             .await
             .map_err(|e| e.to_string())?
             .error_for_status()
@@ -74,9 +124,34 @@ impl Engine {
             .bytes()
             .await
             .map_err(|e| e.to_string())?;
-        std::fs::write(&dest, &bytes).map_err(|e| e.to_string())?;
+        let tmp = self.support_dir.join("yt-dlp.exe.download");
+        std::fs::write(&tmp, &bytes).map_err(|e| e.to_string())?;
+        std::fs::rename(&tmp, &dest).map_err(|e| e.to_string())?;
         Ok(())
     }
+}
+
+/// reqwest client with a User-Agent — the GitHub API rejects requests without one.
+fn http_client() -> reqwest::Client {
+    reqwest::Client::builder()
+        .user_agent("Musim")
+        .build()
+        .unwrap_or_default()
+}
+
+/// The latest yt-dlp release tag (e.g. "2026.08.19"), or None on any error.
+async fn latest_tag() -> Option<String> {
+    let resp = http_client()
+        .get("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
+        .header("Accept", "application/vnd.github+json")
+        .send()
+        .await
+        .ok()?;
+    if !resp.status().is_success() {
+        return None;
+    }
+    let json: serde_json::Value = resp.json().await.ok()?;
+    json.get("tag_name")?.as_str().map(String::from)
 }
 
 // MARK: - Media probe types

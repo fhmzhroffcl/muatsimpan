@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, type AppSettings } from "./api";
+import { api, checkForAppUpdate, type AppSettings } from "./api";
 import { applyTheme } from "./lib/theme";
 import { AppProvider, useApp } from "./lib/store";
 import { Splash } from "./screens/Splash";
@@ -18,6 +18,8 @@ export default function App() {
       api.engineReady().then((ready) => {
         if (!ready) api.installEngine().catch(() => {});
       });
+      // Offer an app update if a newer signed build has been released.
+      checkForAppUpdate(s.language === "malay");
     });
   }, []);
 
