@@ -18,8 +18,8 @@ export function AboutModal({ onClose }: { onClose: () => void }) {
   const [showQR, setShowQR] = useState(false);
 
   const bodyText = my
-    ? "MUSIM (Arkib + Simpan) v2.0 ialah arkib media peribadi natif yang ringkas, bebas iklan, dan dikuasakan oleh seni bina sumber terbuka VidBee (Deno, yt-dlp, FFmpeg).\n\nDireka untuk menyimpan media dengan pantas daripada pelbagai sumber, ia turut dilengkapi dengan pustaka fail, pemain video terbina dalam, dan editor video. Aplikasi ini dihasilkan secara kolaboratif bersama Claude Fable 5 & Opus 4.8 oleh Fahim Zahar."
-    : "MUSIM (Arkib + Simpan) v2.0 is a lightweight, ad-free, native personal media archive powered by the open-source VidBee architecture (Deno, yt-dlp, FFmpeg).\n\nBuilt for fast local saves from many media sources, it includes a built-in player and a two-panel video editor. This app was created collaboratively with Claude Fable 5 & Opus 4.8 by Fahim Zahar.";
+    ? "MUSIM (Arkib + Simpan) v2.1 ialah arkib media peribadi natif yang ringkas, bebas iklan, dan dikuasakan oleh seni bina sumber terbuka VidBee (Deno, yt-dlp, FFmpeg).\n\nDireka untuk menyimpan media dengan pantas daripada pelbagai sumber, ia turut dilengkapi dengan pustaka fail, pemain video terbina dalam, dan editor video. Aplikasi ini dihasilkan secara kolaboratif bersama Claude Fable 5 & Opus 4.8 oleh Fahim Zahar."
+    : "MUSIM (Arkib + Simpan) v2.1 is a lightweight, ad-free, native personal media archive powered by the open-source VidBee architecture (Deno, yt-dlp, FFmpeg).\n\nBuilt for fast local saves from many media sources, it includes a built-in player and a two-panel video editor. This app was created collaboratively with Claude Fable 5 & Opus 4.8 by Fahim Zahar.";
 
   const tabLabel = (t: Tab) => {
     const m: Record<Tab, [string, string]> = {
@@ -75,6 +75,7 @@ export function AboutModal({ onClose }: { onClose: () => void }) {
         {tab === "changelog" && (
           <div style={{ width: 440, maxHeight: 360, overflow: "auto", display: "flex", flexDirection: "column", gap: 18 }}>
             <div style={{ fontSize: 18, fontWeight: 700 }}>{my ? "Perubahan versi" : "Version history"}</div>
+            <ChangelogEntry version="2.1" date="4 Sep 2026" title={my ? "Muat turun lebih tahan lasak" : "More reliable downloads"} body={my ? "Enjin yt-dlp kini mengemas kini sendiri di latar belakang dan mencuba semula secara automatik apabila laman mengubah cara strim — jadi muat turun tidak lagi gagal dengan ralat 403. Mesej ralat lebih jelas, corak Malaysia lebih jelas, tip maklumat kini boleh diklik, dan kesan bunyi ditambah." : "The yt-dlp engine now updates itself in the background and retries automatically when a site changes how it streams — so downloads no longer fail with 403 errors. Clearer error messages, a more visible Malaysian pattern, click-to-open info tips, and sound effects were added."} />
             <ChangelogEntry version="2.0" date="15 Jul 2026" title={my ? "Pemain & editor dibetulkan" : "Player & editor fixed"} body={my ? "Tambah pemain video terbina dalam dan susun atur editor dua panel dengan garis masa di bawah video." : "Added the built-in video player and a two-panel editor with the timeline below the video."} />
             <ChangelogEntry version="1.0" date="10 Jul 2026" title={my ? "Keluaran pertama" : "First release"} body={my ? "Simpan media video dan audio, pustaka fail, folder, nota lekat, serta tetapan penamaan fail." : "Saved video and audio media, file library, folders, sticky notes, and filename settings."} />
           </div>

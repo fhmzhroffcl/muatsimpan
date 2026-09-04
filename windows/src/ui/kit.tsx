@@ -191,7 +191,7 @@ export function Segmented<T extends string>({
 export function PatternBg({
   pattern,
   accentHex,
-  opacity = 0.06,
+  opacity = 0.15,
   radius,
 }: {
   pattern: PatternStyle;
@@ -213,5 +213,36 @@ export function PatternBg({
         borderRadius: radius,
       }}
     />
+  );
+}
+
+// Click-to-open info dot — a small ⓘ that reveals an explanation popover.
+// Replaces the unreliable/invisible native title tooltip.
+export function InfoDot({ text }: { text: string }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <span style={{ position: "relative", display: "inline-flex" }}>
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+        onBlur={() => setOpen(false)}
+        style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--text-secondary)", display: "inline-flex" }}
+      >
+        <Icon name="info" size={11} />
+      </button>
+      {open && (
+        <span
+          role="tooltip"
+          style={{
+            position: "absolute", top: "140%", left: 0, zIndex: 50, width: 260,
+            padding: "10px 12px", fontSize: 12.5, lineHeight: 1.45,
+            color: "var(--text-primary)", background: "var(--bg-elevated)",
+            border: "1px solid var(--border)", borderRadius: 10,
+            boxShadow: "0 10px 30px rgba(0,0,0,.35)", whiteSpace: "normal",
+          }}
+        >
+          {text}
+        </span>
+      )}
+    </span>
   );
 }

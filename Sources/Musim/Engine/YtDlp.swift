@@ -102,6 +102,10 @@ final class YtDlpManager: ObservableObject {
     /// Application Support so `binaryPath` picks it up. Any failure is silent and
     /// leaves the current binary in place.
     func updateEngineIfNeeded(force: Bool = false) {
+        // Respect the user's "Auto-update engine" toggle for the scheduled check.
+        // (Self-heal via refreshEngineNow() stays available so a failed download
+        // can always recover.)
+        if !force && !AppSettings.shared.autoUpdateEngine { return }
         Task.detached(priority: .background) { [weak self] in
             guard let self else { return }
             let defaults = UserDefaults.standard
@@ -245,6 +249,14 @@ func friendlyError(from stderr: String) -> String {
         lower.contains("sign in") || lower.contains("private") || lower.contains("cookies") {
         return my ? "Pautan ini perlukan log masuk. Hidupkan kuki pelayar dalam Tetapan, kemudian cuba lagi."
                   : "This post needs a login. Turn on browser cookies in Settings, then try again."
+    }
+    if lower.contains("removed by the uploader") || lower.contains("has been removed") {
+        return my ? "Video ini telah dibuang oleh pemuat naiknya — ia tiada lagi di sumber."
+                  : "This video was removed by its uploader — it no longer exists at the source."
+    }
+    if lower.contains("members-only") || lower.contains("join this channel") || lower.contains("music premium") {
+        return my ? "Video ini untuk ahli/langganan sahaja, jadi ia tidak boleh disimpan."
+                  : "This video is members-only / subscription-only, so it can’t be saved."
     }
     if lower.contains("not available") || lower.contains("removed") || lower.contains("unavailable") ||
         lower.contains("410") || lower.contains("404") {

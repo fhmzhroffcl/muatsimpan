@@ -48,7 +48,7 @@ export function applyTheme(settings: AppSettings) {
 
 // A subtle tiling Malaysian motif rendered as an inline SVG data URI, used as a
 // faint background on panels (replaces the SwiftUI Canvas patterns).
-export function patternDataUri(style: PatternStyle, hex: string, opacity = 0.06): string | null {
+export function patternDataUri(style: PatternStyle, hex: string, opacity = 0.15): string | null {
   if (style === "none") return null;
   const stroke = hexA(hex, opacity);
   const fill = hexA(hex, opacity);
@@ -57,14 +57,14 @@ export function patternDataUri(style: PatternStyle, hex: string, opacity = 0.06)
   switch (style) {
     case "batik":
       size = 46;
-      inner = `<circle cx="0" cy="0" r="10" fill="none" stroke="${stroke}"/><circle cx="0" cy="0" r="4" fill="${fill}"/>
-               <circle cx="46" cy="0" r="10" fill="none" stroke="${stroke}"/><circle cx="0" cy="46" r="10" fill="none" stroke="${stroke}"/>
-               <circle cx="46" cy="46" r="10" fill="none" stroke="${stroke}"/>`;
+      inner = `<circle cx="0" cy="0" r="10" fill="none" stroke="${stroke}" stroke-width="1.6"/><circle cx="0" cy="0" r="4" fill="${fill}"/>
+               <circle cx="46" cy="0" r="10" fill="none" stroke="${stroke}" stroke-width="1.6"/><circle cx="0" cy="46" r="10" fill="none" stroke="${stroke}" stroke-width="1.6"/>
+               <circle cx="46" cy="46" r="10" fill="none" stroke="${stroke}" stroke-width="1.6"/>`;
       break;
     case "songket":
       size = 30;
-      inner = `<path d="M0 -6 L6 0 L0 6 L-6 0 Z" fill="none" stroke="${stroke}"/>
-               <path d="M30 24 L36 30 L30 36 L24 30 Z" fill="none" stroke="${stroke}"/>`;
+      inner = `<path d="M0 -6 L6 0 L0 6 L-6 0 Z" fill="none" stroke="${stroke}" stroke-width="1.6"/>
+               <path d="M30 24 L36 30 L30 36 L24 30 Z" fill="none" stroke="${stroke}" stroke-width="1.6"/>`;
       break;
     case "bungaRaya":
       size = 58;
@@ -72,8 +72,8 @@ export function patternDataUri(style: PatternStyle, hex: string, opacity = 0.06)
       break;
     case "klcc":
       size = 40;
-      inner = `<path d="M6 40 L6 8 L11 -2 L16 8 L16 40" fill="none" stroke="${stroke}"/>
-               <path d="M26 40 L26 14 L31 6 L36 14 L36 40" fill="none" stroke="${stroke}"/>`;
+      inner = `<path d="M6 40 L6 8 L11 -2 L16 8 L16 40" fill="none" stroke="${stroke}" stroke-width="1.7"/>
+               <path d="M26 40 L26 14 L31 6 L36 14 L36 40" fill="none" stroke="${stroke}" stroke-width="1.7"/>`;
       break;
   }
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${inner}</svg>`;
@@ -86,7 +86,7 @@ function petals(cx: number, cy: number, stroke: string): string {
     const a = (i / 5) * Math.PI * 2;
     const x = cx + Math.cos(a) * 8 - 4;
     const y = cy + Math.sin(a) * 8 - 7;
-    s += `<ellipse cx="${x + 4}" cy="${y + 7}" rx="4" ry="7" fill="none" stroke="${stroke}" stroke-width="0.8"/>`;
+    s += `<ellipse cx="${x + 4}" cy="${y + 7}" rx="4" ry="7" fill="none" stroke="${stroke}" stroke-width="1.3"/>`;
   }
   return s;
 }

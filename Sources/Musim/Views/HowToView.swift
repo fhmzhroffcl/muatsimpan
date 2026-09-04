@@ -101,11 +101,16 @@ struct PanduanView: View {
             }
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Theme.border).frame(height: 4)
-                    Capsule().fill(Theme.accentGradient).frame(width: max(8, proxy.size.width * progress), height: 4)
+                    Capsule().fill(Theme.surfaceHover)
+                        .overlay(Capsule().strokeBorder(Theme.border, lineWidth: 1))
+                        .frame(height: 7)
+                    Capsule().fill(Theme.accentGradient)
+                        .frame(width: max(14, proxy.size.width * progress), height: 7)
+                        .shadow(color: Theme.accent.opacity(0.5), radius: 5, y: 0)
+                        .animation(.easeOut(duration: 0.45), value: progress)
                 }
             }
-            .frame(height: 4)
+            .frame(height: 7)
         }
         .padding(.bottom, 28)
     }

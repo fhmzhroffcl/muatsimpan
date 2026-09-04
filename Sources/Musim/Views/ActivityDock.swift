@@ -111,7 +111,7 @@ struct FloatingActivityWindow: View {
         .frame(width: 320, height: 420)
         .background(RoundedRectangle(cornerRadius: Theme.rLg, style: .continuous).fill(.ultraThinMaterial))
         .background(RoundedRectangle(cornerRadius: Theme.rLg, style: .continuous).fill(Theme.bgElevated.opacity(0.6)))
-        .patternedRounded(Theme.rLg, opacity: 0.06)
+        .patternedRounded(Theme.rLg, opacity: 0.15)
         .overlay(RoundedRectangle(cornerRadius: Theme.rLg, style: .continuous).strokeBorder(Theme.border, lineWidth: 1))
         .shadow(color: .black.opacity(0.3), radius: 26, y: 12)
         // Clicks inside the window must not fall through to the dismiss layer.

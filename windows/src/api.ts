@@ -92,6 +92,7 @@ export interface AppSettings {
   accent: string;
   pattern: string;
   autoUpdateEngine: boolean;
+  sfxEnabled: boolean;
   historyLog: HistoryLogFrequency;
   advancedNaming: boolean;
   namePrefix: string;

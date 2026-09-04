@@ -38,6 +38,7 @@ final class DownloadManager: ObservableObject {
 
     /// Enqueue fully-configured items from the pre-download options sheet.
     func enqueue(prepared: [DownloadItem]) {
+        SoundFX.shared.play(.save)
         for var item in prepared {
             item.status = .pending
             item.platform = Platform.detect(from: item.url)
@@ -47,6 +48,7 @@ final class DownloadManager: ObservableObject {
     }
 
     func enqueue(urls: [String], type: MediaType? = nil) {
+        SoundFX.shared.play(.save)
         for url in urls {
             var item = DownloadItem(url: url, title: url, type: type ?? settings.oneClickType)
             item.platform = Platform.detect(from: url)
@@ -231,6 +233,7 @@ final class DownloadManager: ObservableObject {
                 }
             }
             LibraryStore.shared.refresh()
+            SoundFX.shared.play(.complete)
             if let done = items.first(where: { $0.id == id }) { ReportLogger.shared.log(done) }
             if settings.notifyOnComplete {
                 notify(title: item.type == .video ? (settings.language == .malay ? "Video disimpan" : "Video saved")
@@ -267,8 +270,11 @@ final class DownloadManager: ObservableObject {
             }
             update(id) {
                 $0.status = .error
-                $0.errorMessage = String($0.log.suffix(400))
+                // Turn the raw yt-dlp log into a short, human message (removed /
+                // private / login-required / network) instead of dumping stderr.
+                $0.errorMessage = friendlyError(from: $0.log)
             }
+            SoundFX.shared.play(.error)
             if settings.notifyOnComplete {
                 notify(title: settings.language == .malay ? "Simpanan gagal" : "Save failed", body: item.title)
             }

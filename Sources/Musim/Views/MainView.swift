@@ -140,7 +140,7 @@ struct SidebarView: View {
             .padding(.horizontal, 10).padding(.bottom, 14)
         }
         .background(Theme.bgElevated)
-        .patterned(tint: Theme.accent, opacity: 0.05)
+        .patterned(tint: Theme.accent, opacity: 0.14)
         .overlay(alignment: .trailing) { Rectangle().fill(Theme.border).frame(width: 1) }
     }
 
@@ -210,7 +210,7 @@ struct FloatingIconRail: View {
         }
         .padding(8)
         .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(.ultraThinMaterial))
-        .patternedRounded(20, opacity: 0.07)
+        .patternedRounded(20, opacity: 0.15)
         .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(Theme.border, lineWidth: 1))
         .shadow(color: .black.opacity(0.28), radius: 20, y: 8)
     }
@@ -239,10 +239,10 @@ struct AboutModal: View {
     @State private var showQR = false
 
     private var body_my: String {
-        "MUSIM (Arkib + Simpan) v2.0 ialah arkib media peribadi natif Apple Silicon yang ringkas, bebas iklan, dan dikuasakan oleh seni bina sumber terbuka VidBee (Deno, yt-dlp, FFmpeg).\n\nDireka untuk menyimpan media dengan pantas daripada pelbagai sumber, ia turut dilengkapi dengan pustaka fail, pemain video terbina dalam, dan editor video. Aplikasi ini dihasilkan secara kolaboratif bersama Claude Fable 5 & Opus 4.8 oleh Fahim Zahar."
+        "MUSIM (Arkib + Simpan) v2.1 ialah arkib media peribadi natif Apple Silicon yang ringkas, bebas iklan, dan dikuasakan oleh seni bina sumber terbuka VidBee (Deno, yt-dlp, FFmpeg).\n\nDireka untuk menyimpan media dengan pantas daripada pelbagai sumber, ia turut dilengkapi dengan pustaka fail, pemain video terbina dalam, dan editor video. Aplikasi ini dihasilkan secara kolaboratif bersama Claude Fable 5 & Opus 4.8 oleh Fahim Zahar."
     }
     private var body_en: String {
-        "MUSIM (Arkib + Simpan) v2.0 is a lightweight, ad-free, native Apple Silicon personal media archive powered by the open-source VidBee architecture (Deno, yt-dlp, FFmpeg).\n\nBuilt for fast local saves from many media sources, it includes a built-in player and a two-panel video editor. This app was created collaboratively with Claude Fable 5 & Opus 4.8 by Fahim Zahar."
+        "MUSIM (Arkib + Simpan) v2.1 is a lightweight, ad-free, native Apple Silicon personal media archive powered by the open-source VidBee architecture (Deno, yt-dlp, FFmpeg).\n\nBuilt for fast local saves from many media sources, it includes a built-in player and a two-panel video editor. This app was created collaboratively with Claude Fable 5 & Opus 4.8 by Fahim Zahar."
     }
     /// Major tech powering Musim — engine, the AI collaborators, and the stack.
     static let techStack = [
@@ -334,6 +334,11 @@ struct AboutModal: View {
             VStack(alignment: .leading, spacing: 18) {
                 Text(settings.language == .malay ? "Perubahan versi" : "Version history")
                     .font(.title3.weight(.bold)).foregroundStyle(Theme.textPrimary)
+                changelogEntry(version: "2.1", date: "4 Sep 2026",
+                               title: settings.language == .malay ? "Muat turun lebih tahan lasak" : "More reliable downloads",
+                               body: settings.language == .malay
+                                   ? "Enjin yt-dlp kini mengemas kini sendiri di latar belakang dan mencuba semula secara automatik apabila laman mengubah cara strim mereka — jadi muat turun tidak lagi gagal dengan ralat 403. Mesej ralat kini lebih jelas (video dibuang, peribadi atau perlu log masuk). Corak Malaysia dibuat lebih jelas, tip maklumat kini boleh diklik, dan penunjuk kemajuan Panduan dikemas."
+                                   : "The yt-dlp engine now updates itself in the background and retries automatically when a site rotates its streaming — so downloads no longer fail with 403 errors. Failure messages are clearer now (removed, private, or login-required). The Malaysian pattern is more visible, info tips are click-to-open, and the Panduan progress indicator was refreshed.")
                 changelogEntry(version: "2.0", date: "15 Jul 2026",
                                title: settings.language == .malay ? "Pemain & editor dibetulkan" : "Player & editor fixed",
                                body: settings.language == .malay

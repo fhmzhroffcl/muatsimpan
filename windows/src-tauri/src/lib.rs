@@ -56,7 +56,9 @@ pub fn run() {
 
             // Keep the yt-dlp engine fresh in the background so it never goes
             // stale (a stale build starts returning HTTP 403 on video streams).
-            {
+            // Respects the user's auto-update toggle; self-heal on a failed
+            // download stays available regardless.
+            if settings.auto_update_engine {
                 let engine = engine.clone();
                 tauri::async_runtime::spawn(async move {
                     engine.update_ytdlp_if_needed(false).await;

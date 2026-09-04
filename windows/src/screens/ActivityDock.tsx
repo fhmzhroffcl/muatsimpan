@@ -60,7 +60,7 @@ export function ActivityDock() {
         onClick={(e) => e.stopPropagation()}
         style={{ position: "fixed", right: 20, bottom: 20, width: 340, height: 440, zIndex: 41, display: "flex", flexDirection: "column", overflow: "hidden" }}
       >
-        <PatternBg pattern={settings.pattern as PatternStyle} accentHex={accent.hex} opacity={0.06} radius={12} />
+        <PatternBg pattern={settings.pattern as PatternStyle} accentHex={accent.hex} opacity={0.15} radius={12} />
         <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 14px 8px" }}>
             <Icon name="library" size={14} style={{ color: "var(--accent)" }} />

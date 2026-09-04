@@ -127,7 +127,7 @@ enum PatternStyle: String, CaseIterable, Identifiable {
 struct MalaysianPattern: View {
     var style: PatternStyle
     var tint: Color = Theme.accent
-    var opacity: Double = 0.06
+    var opacity: Double = 0.15
 
     var body: some View {
         Canvas { ctx, size in
@@ -150,7 +150,7 @@ struct MalaysianPattern: View {
             var x: CGFloat = 0
             while x < size.width + step {
                 var p = Path(); p.addArc(center: CGPoint(x: x, y: y), radius: 10, startAngle: .zero, endAngle: .degrees(360), clockwise: false)
-                ctx.stroke(p, with: c, lineWidth: 1)
+                ctx.stroke(p, with: c, lineWidth: 1.6)
                 var p2 = Path(); p2.addArc(center: CGPoint(x: x, y: y), radius: 4, startAngle: .zero, endAngle: .degrees(360), clockwise: false)
                 ctx.fill(p2, with: c)
                 x += step
@@ -167,7 +167,7 @@ struct MalaysianPattern: View {
                 var d = Path()
                 d.move(to: CGPoint(x: x, y: y - 6)); d.addLine(to: CGPoint(x: x + 6, y: y))
                 d.addLine(to: CGPoint(x: x, y: y + 6)); d.addLine(to: CGPoint(x: x - 6, y: y)); d.closeSubpath()
-                ctx.stroke(d, with: c, lineWidth: 1)
+                ctx.stroke(d, with: c, lineWidth: 1.6)
                 x += step
             }
             y += step
@@ -183,7 +183,7 @@ struct MalaysianPattern: View {
                     let a = CGFloat(i) / 5 * .pi * 2
                     var pet = Path()
                     pet.addEllipse(in: CGRect(x: x + cos(a)*8 - 4, y: y + sin(a)*8 - 7, width: 8, height: 14))
-                    ctx.stroke(pet, with: c, lineWidth: 0.8)
+                    ctx.stroke(pet, with: c, lineWidth: 1.3)
                 }
                 x += step
             }
@@ -200,7 +200,7 @@ struct MalaysianPattern: View {
             t.addLine(to: CGPoint(x: x + 5, y: size.height - 44))
             t.addLine(to: CGPoint(x: x + 10, y: size.height - 34))
             t.addLine(to: CGPoint(x: x + 10, y: size.height))
-            ctx.stroke(t, with: c, lineWidth: 1)
+            ctx.stroke(t, with: c, lineWidth: 1.7)
             x += step
         }
     }
@@ -208,13 +208,13 @@ struct MalaysianPattern: View {
 
 extension View {
     /// Overlay a subtle pattern following the user's setting.
-    func patterned(_ scope: PatternScope = .panel, tint: Color = Theme.accent, opacity: Double = 0.06) -> some View {
+    func patterned(_ scope: PatternScope = .panel, tint: Color = Theme.accent, opacity: Double = 0.15) -> some View {
         let style = PatternStyle(rawValue: AppSettings.shared.pattern) ?? .batik
         return self.overlay(MalaysianPattern(style: style, tint: tint, opacity: opacity).clipped())
     }
 
     /// Same subtle pattern, clipped to a rounded rectangle (floating panels).
-    func patternedRounded(_ radius: CGFloat, tint: Color = Theme.accent, opacity: Double = 0.06) -> some View {
+    func patternedRounded(_ radius: CGFloat, tint: Color = Theme.accent, opacity: Double = 0.15) -> some View {
         let style = PatternStyle(rawValue: AppSettings.shared.pattern) ?? .batik
         return self.overlay(
             MalaysianPattern(style: style, tint: tint, opacity: opacity)

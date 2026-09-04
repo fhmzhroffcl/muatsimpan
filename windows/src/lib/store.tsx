@@ -7,6 +7,7 @@ import {
 } from "../api";
 import { applyTheme } from "./theme";
 import { greeting, loc } from "./i18n";
+import { setSfxEnabled, playSfx } from "./sfx";
 
 interface AppCtx {
   settings: AppSettings;
@@ -33,12 +34,28 @@ export function AppProvider({ settings: initial, children }: { settings: AppSett
   const [engineReady, setEngineReady] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
   const persistTimer = useRef<number | null>(null);
+  const prevStatus = useRef<Record<string, string>>({});
 
   useEffect(() => {
     applyTheme(settings);
-    api.getDownloads().then(setDownloads);
+    setSfxEnabled(settings.sfxEnabled);
+    api.getDownloads().then((d) => {
+      prevStatus.current = Object.fromEntries(d.map((i) => [i.id, i.status]));
+      setDownloads(d);
+    });
     api.engineReady().then(setEngineReady);
-    const un = onDownloadsUpdated(setDownloads);
+    const un = onDownloadsUpdated((d) => {
+      // Play a cue when an item finishes or fails.
+      for (const i of d) {
+        const was = prevStatus.current[i.id];
+        if (was && was !== i.status) {
+          if (i.status === "completed") playSfx("complete");
+          else if (i.status === "error") playSfx("error");
+        }
+      }
+      prevStatus.current = Object.fromEntries(d.map((i) => [i.id, i.status]));
+      setDownloads(d);
+    });
     return () => { un.then((f) => f()); };
   }, []);
 
@@ -46,6 +63,7 @@ export function AppProvider({ settings: initial, children }: { settings: AppSett
     setSettings((prev) => {
       const next = { ...prev, ...patch };
       applyTheme(next);
+      setSfxEnabled(next.sfxEnabled);
       // Debounced persistence to the Rust side.
       if (persistTimer.current) window.clearTimeout(persistTimer.current);
       persistTimer.current = window.setTimeout(() => api.saveSettings(next), 250);
@@ -80,7 +98,7 @@ export function AppProvider({ settings: initial, children }: { settings: AppSett
     refreshEngine: () => api.engineReady().then(setEngineReady),
     t: (key) => loc(key, settings.language),
     greet: () => greeting(settings.language, settings.userName),
-    enqueue: (urls, type) => api.enqueueUrls(urls, type),
+    enqueue: (urls, type) => { playSfx("save"); return api.enqueueUrls(urls, type); },
     activityOpen,
     openActivity: () => setActivityOpen(true),
     closeActivity: () => setActivityOpen(false),
