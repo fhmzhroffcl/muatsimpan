@@ -56,6 +56,13 @@ if [ -d logos ]; then
   echo "Logos: $(ls logos/*.png 2>/dev/null | wc -l | tr -d ' ') bundled"
 fi
 
+# UI sound effects (SoundFX plays them when enabled in Settings)
+if [ -d sfx ]; then
+  mkdir -p "$APP/Contents/Resources/sfx"
+  cp sfx/*.wav "$APP/Contents/Resources/sfx/" 2>/dev/null || true
+  echo "SFX: $(ls sfx/*.wav 2>/dev/null | wc -l | tr -d ' ') bundled"
+fi
+
 # legal documents shown in the About modal
 if [ -d legal ]; then
   cp legal/PRIVACY.md legal/TERMS.md legal/NOTICE.md "$APP/Contents/Resources/" 2>/dev/null || true
@@ -96,8 +103,8 @@ cat > "$APP/Contents/Info.plist" <<EOF
     <key>CFBundleName</key><string>Musim</string>
     <key>CFBundleDisplayName</key><string>Musim</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>${MUSIM_VERSION:-2.0}</string>
-    <key>CFBundleVersion</key><string>${MUSIM_BUILD:-2}</string>
+    <key>CFBundleShortVersionString</key><string>${MUSIM_VERSION:-2.1}</string>
+    <key>CFBundleVersion</key><string>${MUSIM_BUILD:-3}</string>
     <key>CFBundleIconFile</key><string>icon</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>

@@ -30,7 +30,7 @@ export function MainLayout() {
     <div style={{ position: "fixed", inset: 0, display: "flex", background: "var(--bg)" }}>
       {!collapsed && (
         <aside className="sidebar">
-          <PatternBg pattern={pattern} accentHex={accent.hex} opacity={0.05} />
+          <PatternBg pattern={pattern} accentHex={accent.hex} opacity={0.14} />
           <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "100%" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "40px 16px 22px" }}>
               <Logo size={36} />
@@ -65,7 +65,7 @@ export function MainLayout() {
       {collapsed && (
         <div style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", zIndex: 10 }}>
           <div className="glass-card" style={{ padding: 8, display: "flex", flexDirection: "column", gap: 8, alignItems: "center", position: "relative" }}>
-            <PatternBg pattern={pattern} accentHex={accent.hex} opacity={0.07} radius={12} />
+            <PatternBg pattern={pattern} accentHex={accent.hex} opacity={0.15} radius={12} />
             <button style={{ border: "none", background: "transparent" }} onClick={() => setCollapsed(false)} title="Expand"><Logo size={34} /></button>
             <div style={{ width: 22, height: 1, background: "var(--border)" }} />
             {SECTIONS.map((s) => (

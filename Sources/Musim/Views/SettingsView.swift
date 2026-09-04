@@ -33,6 +33,13 @@ struct SettingsView: View {
                     row(my ? "Beritahu bila simpanan selesai" : "Notify when a save finishes") {
                         Toggle("", isOn: $settings.notifyOnComplete).labelsHidden().toggleStyle(.switch)
                     }
+                    row(my ? "Kesan bunyi" : "Sound effects",
+                        subtitle: my ? "Bunyi halus untuk klik, simpan, dan siap" : "Subtle sounds for clicks, saves, and completion",
+                        info: my ? "Mainkan kesan bunyi ringkas semasa berinteraksi dengan Musim. Matikan untuk senyap sepenuhnya."
+                                 : "Play short interaction sounds as you use Musim. Turn off for full silence.") {
+                        Toggle("", isOn: $settings.sfxEnabled).labelsHidden().toggleStyle(.switch)
+                            .onChange(of: settings.sfxEnabled) { _, on in if on { SoundFX.shared.play(.toggle) } }
+                    }
                 }
 
                 group(my ? "Tema" : "Theme", icon: "paintpalette.fill") {
@@ -295,7 +302,7 @@ struct SettingsView: View {
                 HStack(spacing: 5) {
                     Text(title).font(.callout)
                     if let info {
-                        Image(systemName: "info.circle").font(.system(size: 11)).foregroundStyle(.tertiary).help(info)
+                        InfoButton(text: info)
                     }
                 }
                 if let subtitle {
@@ -307,6 +314,27 @@ struct SettingsView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
+    }
+}
+
+/// A click-to-open info dot. Native `.help()` tooltips are unreliable and
+/// undiscoverable, so the ⓘ opens a small popover with the explanation instead.
+struct InfoButton: View {
+    let text: String
+    @State private var show = false
+    var body: some View {
+        Button { show.toggle() } label: {
+            Image(systemName: "info.circle").font(.system(size: 11)).foregroundStyle(.secondary)
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $show, arrowEdge: .bottom) {
+            Text(text)
+                .font(.callout)
+                .foregroundStyle(Theme.textPrimary)
+                .frame(width: 260, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(14)
+        }
     }
 }
 

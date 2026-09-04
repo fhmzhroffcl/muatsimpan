@@ -229,6 +229,20 @@ pub fn friendly_error(stderr: &str, malay: bool) -> String {
             "This post needs a login. Turn on browser cookies in Settings, then try again.".into()
         };
     }
+    if has("removed by the uploader") || has("has been removed") {
+        return if malay {
+            "Video ini telah dibuang oleh pemuat naiknya — ia tiada lagi di sumber.".into()
+        } else {
+            "This video was removed by its uploader — it no longer exists at the source.".into()
+        };
+    }
+    if has("members-only") || has("join this channel") || has("music premium") {
+        return if malay {
+            "Video ini untuk ahli/langganan sahaja, jadi ia tidak boleh disimpan.".into()
+        } else {
+            "This video is members-only / subscription-only, so it can’t be saved.".into()
+        };
+    }
     if has("not available") || has("removed") || has("unavailable") || has("410") || has("404") {
         return if malay {
             "Video ini tidak tersedia. Mungkin sudah dipadam, dikunci wilayah, atau ada sekatan umur.".into()

@@ -55,6 +55,7 @@ final class AppSettings: ObservableObject {
         "nameSeparator",
         "nameDate",
         "nameCounter",
+        "sfxEnabled",
         "cookieResetV3"
     ]
 
@@ -81,6 +82,7 @@ final class AppSettings: ObservableObject {
     @Published var accent: String { didSet { d.set(accent, forKey: "accent") } }
     @Published var pattern: String { didSet { d.set(pattern, forKey: "pattern") } }
     @Published var autoUpdateEngine: Bool { didSet { d.set(autoUpdateEngine, forKey: "autoUpdateEngine") } }
+    @Published var sfxEnabled: Bool { didSet { d.set(sfxEnabled, forKey: "sfxEnabled") } }
     @Published var historyLog: HistoryLogFrequency { didSet { d.set(historyLog.rawValue, forKey: "historyLog") } }
     // Advanced naming (prefix/suffix/separator/date/counter → yt-dlp template)
     @Published var advancedNaming: Bool { didSet { d.set(advancedNaming, forKey: "advancedNaming") } }
@@ -126,6 +128,7 @@ final class AppSettings: ObservableObject {
         accent = d.string(forKey: "accent") ?? "sunset"
         pattern = d.string(forKey: "pattern") ?? "batik"
         autoUpdateEngine = d.object(forKey: "autoUpdateEngine") == nil ? true : d.bool(forKey: "autoUpdateEngine")
+        sfxEnabled = d.object(forKey: "sfxEnabled") == nil ? true : d.bool(forKey: "sfxEnabled")
         historyLog = HistoryLogFrequency(rawValue: d.string(forKey: "historyLog") ?? "") ?? .weekly
         advancedNaming = d.bool(forKey: "advancedNaming")
         namePrefix = d.string(forKey: "namePrefix") ?? ""

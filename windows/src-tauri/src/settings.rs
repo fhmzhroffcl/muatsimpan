@@ -104,6 +104,8 @@ pub struct AppSettings {
     pub pattern: String,
     #[serde(default = "yes")]
     pub auto_update_engine: bool,
+    #[serde(default = "yes")]
+    pub sfx_enabled: bool,
     #[serde(default)]
     pub history_log: HistoryLogFrequency,
     // Advanced naming
@@ -180,6 +182,7 @@ impl Default for AppSettings {
             accent: "sunset".to_string(),
             pattern: "batik".to_string(),
             auto_update_engine: true,
+            sfx_enabled: true,
             history_log: HistoryLogFrequency::Weekly,
             advanced_naming: false,
             name_prefix: String::new(),

@@ -2,9 +2,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { api, type AppAppearance, type ContainerOption, type HistoryLogFrequency, type MediaType, type QualityPreset } from "../api";
 import { useApp } from "../lib/store";
-import { GlassCard, Btn, Spinner } from "../ui/kit";
+import { GlassCard, Btn, Spinner, InfoDot } from "../ui/kit";
 import { Icon } from "../ui/Icon";
 import { ACCENTS, PATTERNS, patternLabel, type PatternStyle } from "../lib/theme";
+import { playSfx } from "../lib/sfx";
 
 const BROWSERS = ["none", "auto", "chrome", "edge", "firefox", "brave", "opera", "vivaldi", "chromium"];
 
@@ -52,6 +53,11 @@ export function Settings() {
         <Group title={my ? "Pemberitahuan" : "Notifications"} icon="info">
           <Row title={my ? "Beritahu bila simpanan selesai" : "Notify when a save finishes"}>
             <Switch on={settings.notifyOnComplete} onChange={(v) => updateSettings({ notifyOnComplete: v })} />
+          </Row>
+          <Row title={my ? "Kesan bunyi" : "Sound effects"}
+               sub={my ? "Bunyi halus untuk klik, simpan, dan siap" : "Subtle sounds for clicks, saves, and completion"}
+               info={my ? "Mainkan kesan bunyi ringkas semasa berinteraksi dengan Musim. Matikan untuk senyap sepenuhnya." : "Play short interaction sounds as you use Musim. Turn off for full silence."}>
+            <Switch on={settings.sfxEnabled} onChange={(v) => { updateSettings({ sfxEnabled: v }); if (v) playSfx("toggle"); }} />
           </Row>
         </Group>
 
@@ -218,7 +224,7 @@ function Row({ title, sub, info, children }: { title: string; sub?: string; info
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
           <span style={{ fontSize: 14 }}>{title}</span>
-          {info && <span title={info} style={{ color: "var(--text-secondary)", display: "inline-flex" }}><Icon name="info" size={11} /></span>}
+          {info && <InfoDot text={info} />}
         </div>
         {sub && <div style={{ fontSize: 11, color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub}</div>}
       </div>

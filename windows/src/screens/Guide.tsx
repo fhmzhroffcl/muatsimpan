@@ -75,8 +75,8 @@ export function Guide() {
             <span style={{ color: "var(--text-secondary)" }}>{my ? "JELAJAHKAN ALIRAN" : "EXPLORE THE FLOW"}</span>
             <span style={{ color: "var(--accent)" }}>{active + 1} / {CHAPTERS.length}</span>
           </div>
-          <div style={{ height: 4, background: "var(--border)", borderRadius: 999 }}>
-            <div style={{ width: `${((active + 1) / CHAPTERS.length) * 100}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,var(--accent),var(--accent2))", transition: "width .4s" }} />
+          <div style={{ height: 7, background: "var(--surface-hover)", border: "1px solid var(--border)", borderRadius: 999 }}>
+            <div style={{ width: `${((active + 1) / CHAPTERS.length) * 100}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,var(--accent),var(--accent2))", boxShadow: "0 0 6px var(--accent)", transition: "width .45s" }} />
           </div>
         </div>
 

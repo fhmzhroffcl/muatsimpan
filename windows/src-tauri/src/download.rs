@@ -482,10 +482,12 @@ fn finish(
             });
             return;
         }
+        // Turn the raw yt-dlp log into a short, human message instead of a tail.
+        let malay = matches!(settings.language, crate::settings::AppLanguage::Malay);
+        let msg = crate::ytdlp::friendly_error(&item.log, malay);
         dl.update(id, |i| {
             i.status = DownloadStatus::Error;
-            let tail: String = i.log.chars().rev().take(400).collect::<String>().chars().rev().collect();
-            i.error_message = Some(tail);
+            i.error_message = Some(msg);
         });
         if settings.notify_on_complete {
             let malay = matches!(settings.language, crate::settings::AppLanguage::Malay);

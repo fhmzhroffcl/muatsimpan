@@ -1,7 +1,7 @@
 # Polisi Privasi / Privacy Policy
 
-**Musim (Muat + Simpan) v2.0**
-Kemas kini terakhir / Last updated: Julai / July 2026
+**Musim (Muat + Simpan) v2.1**
+Kemas kini terakhir / Last updated: September 2026
 
 ---
 
@@ -23,9 +23,9 @@ Semua tetapan dan data disimpan **secara setempat** di peranti anda sahaja:
 - Tiada satu pun daripada data ini dihantar ke pelayan luar.
 
 ### 4. Sambungan Rangkaian
-Musim hanya menghubungi rangkaian untuk tujuan berikut, dan hanya atas arahan anda:
+Musim menghubungi rangkaian hanya untuk tujuan berikut:
 - Mengakses pautan video/audio yang **anda** tampal, untuk mendapatkan maklumat dan memuat turun kandungan.
-- Memuat turun kemas kini enjin sumber terbuka (yt-dlp) jika perlu.
+- Menyemak dan memuat turun kemas kini enjin sumber terbuka (yt-dlp) secara automatik daripada GitHub semasa app dibuka, supaya muat turun kekal berfungsi apabila laman video mengubah cara strim mereka. Anda boleh mematikan semakan automatik ini dalam Tetapan › Enjin.
 - Kod QR sumbangan hanyalah imej statik; ia tidak menjejaki anda.
 
 Musim tidak menghantar sebarang maklumat tentang aktiviti muat turun anda kepada pembangun atau mana-mana pihak ketiga.
@@ -65,9 +65,9 @@ All settings and data are stored **locally** on your device only:
 - None of this data is ever sent to any external server.
 
 ### 4. Network Connections
-Musim only contacts the network for the following purposes, and only at your instruction:
+Musim contacts the network only for the following purposes:
 - Accessing the video/audio links **you** paste, to fetch info and download content.
-- Downloading updates to the open-source engine (yt-dlp) when needed.
+- Automatically checking for and downloading updates to the open-source engine (yt-dlp) from GitHub on launch, so downloads keep working when video sites change how they stream. You can turn this automatic check off in Settings › Engine.
 - The donation QR code is just a static image; it does not track you.
 
 Musim does not send any information about your download activity to the developer or any third party.

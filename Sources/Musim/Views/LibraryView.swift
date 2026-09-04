@@ -160,7 +160,7 @@ struct LibraryView: View {
             ScrollView([.horizontal, .vertical]) {
                 ZStack(alignment: .topLeading) {
                     DotGridBackground().frame(width: canvasSize.width, height: canvasSize.height)
-                        .patterned(tint: Theme.accent, opacity: 0.05)
+                        .patterned(tint: Theme.accent, opacity: 0.15)
                     ForEach(Array(folderEntries.enumerated()), id: \.element.id) { idx, entry in
                         let organized = sortMode != .messy
                         let pos = organized ? gridPos(idx) : library.position(for: entry, index: idx, canvasWidth: canvasSize.width)
