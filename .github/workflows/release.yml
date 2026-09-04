@@ -29,8 +29,13 @@ jobs:
         id: v
         run: |
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          VER="${TAG#v}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          # Monotonic CFBundleVersion derived from semver (major*10000 + minor*100
+          # + patch), so Sparkle always sees a newer release as newer.
+          IFS=. read -r MAJ MIN PAT <<< "$VER"
+          echo "build=$(( ${MAJ:-0}*10000 + ${MIN:-0}*100 + ${PAT:-0} ))" >> "$GITHUB_OUTPUT"
 
       - name: Fetch bundled binaries (yt-dlp, ffmpeg, ffprobe, deno)
         run: ./scripts/fetch-binaries.sh
@@ -38,7 +43,7 @@ jobs:
       - name: Build + bundle Musim.app / Musim.dmg
         env:
           MUSIM_VERSION: ${{ steps.v.outputs.version }}
-          MUSIM_BUILD: ${{ github.run_number }}
+          MUSIM_BUILD: ${{ steps.v.outputs.build }}
         run: ./scripts/bundle.sh
 
       - name: Sign DMG for Sparkle
@@ -63,7 +68,7 @@ jobs:
               <item>
                 <title>Musim ${VER}</title>
                 <pubDate>$(date -u +"%a, %d %b %Y %H:%M:%S +0000")</pubDate>
-                <sparkle:version>${{ github.run_number }}</sparkle:version>
+                <sparkle:version>${{ steps.v.outputs.build }}</sparkle:version>
                 <sparkle:shortVersionString>${VER}</sparkle:shortVersionString>
                 <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
                 <enclosure url="https://github.com/${REPO}/releases/download/${TAG}/Musim.dmg" ${{ steps.sign.outputs.enclosure }} type="application/octet-stream"/>

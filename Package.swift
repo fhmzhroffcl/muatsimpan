@@ -16,5 +16,9 @@ let package = Package(
             ],
             path: "Sources/Musim"
         )
-    ]
+    ],
+    // Pin the Swift 5 language mode: the codebase uses pre-concurrency patterns
+    // that are warnings in Swift 5 but hard errors under Swift 6 (some CI
+    // toolchains default to Swift 6 mode even for a 5.9 tools-version).
+    swiftLanguageVersions: [.v5]
 )
