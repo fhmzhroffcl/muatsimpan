@@ -13,8 +13,8 @@ final class GreetingEngine: ObservableObject {
 
     private init() {
         current = build()
-        timer = Timer.scheduledTimer(withTimeInterval: 150, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.rotate() }
+        timer = Timer.scheduledTimer(withTimeInterval: 150, repeats: true) { _ in
+            Task { @MainActor in GreetingEngine.shared.rotate() }
         }
     }
 

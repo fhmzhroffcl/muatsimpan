@@ -94,23 +94,21 @@ final class DownloadManager: ObservableObject {
         guard let bin = YtDlpManager.shared.binaryPath,
               let item = items.first(where: { $0.id == id }) else { return }
         let args = ArgsBuilder.infoArgs(url: item.url, settings: settings)
-        Task.detached { [weak self] in
-            let out = Self.run(bin: bin, args: args)
+        Task { @MainActor in
+            let out = await Task.detached { Self.run(bin: bin, args: args) }.value
             guard let data = out.data(using: .utf8),
                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
-            await MainActor.run {
-                self?.update(id) { it in
-                    it.title = json["title"] as? String ?? it.title
-                    it.thumbnailURL = json["thumbnail"] as? String
-                    it.duration = json["duration"] as? Double
-                    it.uploader = json["uploader"] as? String
-                    it.channel = json["channel"] as? String ?? json["uploader"] as? String
-                    it.descriptionText = json["description"] as? String
-                    it.viewCount = json["view_count"] as? Int
-                    it.formatNote = (json["resolution"] as? String) ?? (json["format_note"] as? String)
-                    it.ext = json["ext"] as? String
-                    it.audioFormat = json["acodec"] as? String
-                }
+            DownloadManager.shared.update(id) { it in
+                it.title = json["title"] as? String ?? it.title
+                it.thumbnailURL = json["thumbnail"] as? String
+                it.duration = json["duration"] as? Double
+                it.uploader = json["uploader"] as? String
+                it.channel = json["channel"] as? String ?? json["uploader"] as? String
+                it.descriptionText = json["description"] as? String
+                it.viewCount = json["view_count"] as? Int
+                it.formatNote = (json["resolution"] as? String) ?? (json["format_note"] as? String)
+                it.ext = json["ext"] as? String
+                it.audioFormat = json["acodec"] as? String
             }
         }
     }
@@ -169,18 +167,19 @@ final class DownloadManager: ObservableObject {
         p.standardError = err
         let id = item.id
 
-        out.fileHandleForReading.readabilityHandler = { [weak self] handle in
+        out.fileHandleForReading.readabilityHandler = { handle in
             let chunk = String(data: handle.availableData, encoding: .utf8) ?? ""
             guard !chunk.isEmpty else { return }
-            Task { @MainActor in self?.handleOutput(id: id, chunk: chunk) }
+            Task { @MainActor in DownloadManager.shared.handleOutput(id: id, chunk: chunk) }
         }
-        err.fileHandleForReading.readabilityHandler = { [weak self] handle in
+        err.fileHandleForReading.readabilityHandler = { handle in
             let chunk = String(data: handle.availableData, encoding: .utf8) ?? ""
             guard !chunk.isEmpty else { return }
-            Task { @MainActor in self?.update(id) { $0.log += chunk } }
+            Task { @MainActor in DownloadManager.shared.update(id) { $0.log += chunk } }
         }
-        p.terminationHandler = { [weak self] proc in
-            Task { @MainActor in self?.finished(id: id, code: proc.terminationStatus) }
+        p.terminationHandler = { proc in
+            let code = proc.terminationStatus
+            Task { @MainActor in DownloadManager.shared.finished(id: id, code: code) }
         }
         processes[id] = p
         do { try p.run() } catch {

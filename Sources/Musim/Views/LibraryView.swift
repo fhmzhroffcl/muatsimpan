@@ -1154,6 +1154,7 @@ struct ThumbnailTimelineView: View {
         })
     }
 
+    @MainActor
     private func loadThumbnails() async {
         let asset = AVURLAsset(url: url)
         let duration = (try? await asset.load(.duration).seconds) ?? total
@@ -1168,7 +1169,7 @@ struct ThumbnailTimelineView: View {
                 loaded.append(NSImage(cgImage: cg, size: .zero))
             }
         }
-        await MainActor.run { thumbnails = loaded }
+        thumbnails = loaded
     }
 
     private func timeString(_ time: Double) -> String {

@@ -305,11 +305,12 @@ enum MediaProber {
         args += YtDlpManager.shared.jsRuntimeArgs
         if settings.browser != "none" { args += ["--cookies-from-browser", settings.browser] }
         if !settings.proxy.isEmpty { args += ["--proxy", settings.proxy] }
+        let finalArgs = args
 
         let (output, errText): (String, String) = await Task.detached {
             let p = Process()
             p.executableURL = URL(fileURLWithPath: bin)
-            p.arguments = args
+            p.arguments = finalArgs
             var env = ProcessInfo.processInfo.environment
             env["HOME"] = NSHomeDirectory()
             if env["PATH"] == nil { env["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin" }

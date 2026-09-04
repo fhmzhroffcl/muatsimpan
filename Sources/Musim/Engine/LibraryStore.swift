@@ -331,13 +331,15 @@ final class LibraryStore: ObservableObject {
         session.outputFileType = isAudio ? .m4a : .mp4
         session.timeRange = CMTimeRange(start: CMTime(seconds: start, preferredTimescale: 600),
                                         end: CMTime(seconds: end, preferredTimescale: 600))
+        let box = Unchecked((session: session, done: completion, out: out))
         session.exportAsynchronously {
             Task { @MainActor in
-                if session.status == .completed {
-                    self.refresh()
-                    completion(.success(out))
+                let b = box.v
+                if b.session.status == .completed {
+                    LibraryStore.shared.refresh()
+                    b.done(.success(b.out))
                 } else {
-                    completion(.failure(session.error ?? NSError(domain: "Musim", code: 3, userInfo: [NSLocalizedDescriptionKey: "Export failed"])))
+                    b.done(.failure(b.session.error ?? NSError(domain: "Musim", code: 3, userInfo: [NSLocalizedDescriptionKey: "Export failed"])))
                 }
             }
         }
@@ -403,28 +405,35 @@ final class LibraryStore: ObservableObject {
         }
         args += ["-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out.path]
 
+        let finalArgs = args
+        let box = Unchecked((done: completion, out: out))
         Task.detached {
             let process = Process()
             let errorPipe = Pipe()
             process.executableURL = URL(fileURLWithPath: ffmpeg)
-            process.arguments = args
+            process.arguments = finalArgs
             process.standardError = errorPipe
             do {
                 try process.run()
                 process.waitUntilExit()
                 let errorText = String(data: errorPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+                let code = process.terminationStatus
                 await MainActor.run {
-                    if process.terminationStatus == 0 {
-                        self.refresh()
-                        completion(.success(out))
+                    let b = box.v
+                    if code == 0 {
+                        LibraryStore.shared.refresh()
+                        b.done(.success(b.out))
                     } else {
                         let detail = errorText.trimmingCharacters(in: .whitespacesAndNewlines)
-                        completion(.failure(NSError(domain: "Musim", code: 6,
-                                                     userInfo: [NSLocalizedDescriptionKey: detail.isEmpty ? "Export failed" : detail])))
+                        b.done(.failure(NSError(domain: "Musim", code: 6,
+                                                 userInfo: [NSLocalizedDescriptionKey: detail.isEmpty ? "Export failed" : detail])))
                     }
                 }
             } catch {
-                await MainActor.run { completion(.failure(error)) }
+                let errMsg = error.localizedDescription
+                await MainActor.run {
+                    box.v.done(.failure(NSError(domain: "Musim", code: 6, userInfo: [NSLocalizedDescriptionKey: errMsg])))
+                }
             }
         }
     }
